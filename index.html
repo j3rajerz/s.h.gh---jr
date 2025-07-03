@@ -1,0 +1,2338 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>سامانه حضور و غیاب GR</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/persian-datepicker@1.2.0/dist/css/persian-datepicker.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700&display=swap');
+    
+    :root {
+      --primary-color: #ffffff;
+      --secondary-color: #00bcd4;
+      --dark-color: #000000;
+      --light-color: #1a1a1a;
+      --success-color: #4caf50;
+      --danger-color: #f44336;
+      --warning-color: #ff9800;
+      --text-color: #ffffff;
+      --border-color: #333333;
+      --shadow-color: rgba(255, 255, 255, 0.3);
+      --input-bg: #ffffff;
+      --input-text: #000000;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Vazirmatn', sans-serif;
+      background-color: var(--dark-color);
+      color: var(--text-color);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.6;
+    }
+    
+    .container {
+      max-width: 100%;
+      width: 100%;
+      padding: 15px;
+      margin: 0 auto;
+    }
+    
+    .logo {
+      text-align: center;
+      margin: 20px 0;
+      position: relative;
+    }
+    
+    .logo img {
+      max-width: 120px;
+      height: auto;
+    }
+    
+    .card {
+      background: var(--light-color);
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border-color);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 15px;
+      pointer-events: none;
+    }
+    
+    .card:hover {
+      box-shadow: 0 8px 25px var(--shadow-color);
+    }
+    
+    .btn {
+      display: inline-block;
+      padding: 12px 25px;
+      border-radius: 12px;
+      font-weight: 500;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: none;
+      font-size: 16px;
+      margin: 5px;
+      width: calc(100% - 10px);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+      opacity: 0;
+    }
+    
+    .btn:hover::before {
+      opacity: 1;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, var(--secondary-color) 0%, #008ba3 100%);
+      color: white;
+      box-shadow: 0 4px 15px var(--shadow-color);
+    }
+    
+    .btn-primary:hover {
+      box-shadow: 0 8px 20px var(--shadow-color);
+    }
+    
+    .btn-secondary {
+      background: var(--light-color);
+      color: var(--text-color);
+      border: 1px solid var(--secondary-color);
+    }
+    
+    .btn-danger {
+      background: linear-gradient(135deg, var(--danger-color) 0%, #d32f2f 100%);
+      color: white;
+    }
+    
+    .btn-success {
+      background: linear-gradient(135deg, var(--success-color) 0%, #388e3c 100%);
+      color: white;
+    }
+    
+    .btn-warning {
+      background: linear-gradient(135deg, var(--warning-color) 0%, #f57c00 100%);
+      color: white;
+    }
+    
+    .btn-logout {
+      background: linear-gradient(135deg, #9e9e9e 0%, #616161 100%);
+      color: white;
+      margin-top: 20px;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: var(--text-color);
+    }
+    
+    input[type="text"],
+    input[type="password"],
+    input[type="date"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      background-color: var(--input-bg);
+      color: var(--input-text);
+      box-shadow: 0 0 5px rgba(255, 255, 255, 0.1);
+    }
+    
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--secondary-color);
+      box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.2);
+    }
+    
+    .radio-group {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+    
+    .radio-option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+    
+    .radio-option input {
+      accent-color: var(--secondary-color);
+    }
+    
+    .time-picker-container {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      position: relative;
+    }
+    
+    .time-picker-container::before {
+      content: ":";
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 20px;
+      font-weight: bold;
+      color: var(--secondary-color);
+      z-index: 1;
+    }
+    
+    select.time-picker {
+      flex: 1;
+      appearance: none;
+      background-color: var(--input-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 12px;
+      text-align: center;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      color: var(--input-text);
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      background-size: 15px;
+    }
+    
+    .date-container {
+      position: relative;
+    }
+    
+    .date-container input {
+      width: 100%;
+      padding-left: 45px;
+      background-color: var(--input-bg);
+      cursor: pointer;
+      color: var(--input-text);
+    }
+    
+    .date-container i {
+      position: absolute;
+      top: 12px;
+      left: 15px;
+      color: var(--secondary-color);
+      cursor: pointer;
+      font-size: 18px;
+    }
+    
+    .hidden {
+      display: none;
+    }
+    
+    .request-item {
+      padding: 15px;
+      border-radius: 12px;
+      margin-bottom: 15px;
+      background-color: var(--dark-color);
+      border-left: 4px solid var(--border-color);
+      transition: all 0.3s ease;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
+    }
+    
+    .request-item:hover {
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .request-item.approved {
+      border-left-color: var(--success-color);
+      background-color: rgba(76, 175, 80, 0.1);
+    }
+    
+    .request-item.rejected {
+      border-left-color: var(--danger-color);
+      background-color: rgba(244, 67, 54, 0.1);
+    }
+    
+    .request-item.pending {
+      border-left-color: var(--warning-color);
+      background-color: rgba(255, 152, 0, 0.1);
+    }
+    
+    .request-item.transport-pending {
+      border-left-color: #2196F3;
+      background-color: rgba(33, 150, 243, 0.1);
+    }
+    
+    .profile-header {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .profile-pic {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--secondary-color);
+      box-shadow: 0 0 15px var(--shadow-color);
+    }
+    
+    /* استایل تقویم */
+    .datepicker-plot-area {
+      font-size: 14px !important;
+      padding: 15px !important;
+      border-radius: 15px !important;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
+      border: none !important;
+      background-color: var(--light-color) !important;
+      color: var(--text-color) !important;
+    }
+    
+    .datepicker-plot-area .datepicker-navbar {
+      background-color: transparent !important;
+      border-bottom: 1px solid var(--border-color) !important;
+    }
+    
+    .datepicker-plot-area .datepicker-navbar-btn {
+      color: var(--secondary-color) !important;
+    }
+    
+    .datepicker-plot-area .datepicker-day-view .datepicker-cell {
+      color: var(--text-color) !important;
+      border-radius: 8px !important;
+      transition: all 0.3s ease !important;
+    }
+    
+    .datepicker-plot-area .datepicker-day-view .datepicker-cell:hover {
+      background-color: rgba(0, 188, 212, 0.2) !important;
+    }
+    
+    .datepicker-plot-area .datepicker-day-view .datepicker-cell.selected {
+      background: var(--secondary-color) !important;
+      color: white !important;
+      box-shadow: 0 0 10px var(--shadow-color) !important;
+    }
+    
+    .datepicker-plot-area .today-btn {
+      background: var(--secondary-color) !important;
+      color: white !important;
+      border: none !important;
+      font-size: 16px !important;
+      padding: 12px !important;
+      margin-top: 15px !important;
+      box-shadow: 0 0 10px var(--shadow-color) !important;
+    }
+    
+    /* صفحه ورود */
+    .login-options {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-top: 30px;
+    }
+    
+    /* منوها */
+    .admin-menu, .employee-menu, .transport-menu {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 15px;
+      margin-top: 20px;
+    }
+    
+    .menu-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 15px;
+      font-size: 18px;
+    }
+    
+    .menu-btn i {
+      font-size: 24px;
+    }
+    
+    /* انیمیشن‌ها */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    .fade-in {
+      animation: fadeIn 0.5s ease-out forwards;
+    }
+    
+    /* افکت سه بعدی برای آیکون‌ها */
+    .icon-3d {
+      text-shadow: 0 0 10px var(--shadow-color), 
+                   0 0 20px var(--shadow-color),
+                   0 0 30px var(--shadow-color);
+    }
+    
+    /* استایل برای نمایش نام روز */
+    .day-name {
+      display: block;
+      font-size: 12px;
+      margin-top: 3px;
+      color: rgba(255, 255, 255, 0.7);
+    }
+    
+    /* استایل برای دکمه‌های عملیات */
+    .action-btns {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+    
+    .action-btn {
+      flex: 1;
+      padding: 8px;
+      font-size: 14px;
+    }
+    
+    /* استایل برای بخش‌های مختلف */
+    .section-title {
+      text-align: center;
+      margin-bottom: 20px;
+      color: var(--secondary-color);
+      position: relative;
+      padding-bottom: 10px;
+    }
+    
+    .section-title::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 25%;
+      width: 50%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--secondary-color), transparent);
+    }
+    
+    /* استایل برای اسپینر */
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(0, 188, 212, 0.3);
+      border-radius: 50%;
+      border-top-color: var(--secondary-color);
+      animation: spin 1s ease-in-out infinite;
+      margin: 20px auto;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* استایل برای توضیحات کوچک */
+    small {
+      display: block;
+      margin-top: 5px;
+      color: #aaa;
+      font-size: 12px;
+    }
+    
+    /* بهبود نمایش روی موبایل */
+    @media (max-width: 768px) {
+      .container {
+        padding: 10px;
+      }
+      
+      .btn {
+        padding: 10px 15px;
+        font-size: 14px;
+      }
+      
+      .card {
+        padding: 15px;
+      }
+      
+      .profile-header {
+        flex-direction: column;
+        text-align: center;
+      }
+      
+      .profile-pic {
+        margin-bottom: 10px;
+      }
+    }
+    
+    /* استایل برای انتخاب نوع درخواست */
+    .request-type-selector {
+      margin-bottom: 20px;
+    }
+    
+    .request-type-selector select {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      font-size: 16px;
+      background-color: var(--input-bg);
+      color: var(--input-text);
+      box-shadow: 0 0 5px rgba(255, 255, 255, 0.1);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- لوگو -->
+    <div class="logo">
+      <img src="https://i.ibb.co/0jQ4ZQx/GR-logo.png" alt="GR Logo" id="logoImage">
+    </div>
+    
+    <!-- صفحه ورود -->
+    <div id="loginPage" class="card fade-in">
+      <h2 style="text-align: center; color: var(--secondary-color);">سامانه حضور و غیاب GR</h2>
+      <div class="login-options">
+        <button class="btn btn-primary" onclick="showLoginForm('admin')">
+          <i class="fas fa-user-shield icon-3d"></i> ورود مدیر (رمز: 1335)
+        </button>
+        <button class="btn btn-primary" onclick="showLoginForm('employee')">
+          <i class="fas fa-user-tie icon-3d"></i> ورود کارمند
+        </button>
+        <button class="btn btn-primary" onclick="showLoginForm('transport')">
+          <i class="fas fa-car icon-3d"></i> ورود مسئول نقلیه
+        </button>
+        <button class="btn btn-warning" onclick="showHelp()">
+          <i class="fas fa-question-circle"></i> راهنمای سیستم
+        </button>
+      </div>
+    </div>
+    
+    <!-- فرم ورود -->
+    <div id="loginForm" class="card hidden">
+      <h3 id="loginFormTitle" class="section-title"></h3>
+      <div class="form-group">
+        <label for="username">نام کاربری:</label>
+        <input type="text" id="username" placeholder="نام کاربری را وارد کنید">
+      </div>
+      <div class="form-group">
+        <label for="password">رمز عبور:</label>
+        <input type="password" id="password" placeholder="رمز عبور را وارد کنید">
+      </div>
+      <button class="btn btn-primary" onclick="login()">
+        <i class="fas fa-sign-in-alt"></i> ورود
+      </button>
+      <button class="btn btn-secondary" onclick="backToLoginPage()">
+        <i class="fas fa-arrow-right"></i> بازگشت
+      </button>
+    </div>
+    
+    <!-- پنل مدیر -->
+    <div id="adminPanel" class="hidden">
+      <div class="card">
+        <div class="profile-header">
+          <img src="https://via.placeholder.com/60x60?text=Admin" alt="Admin" class="profile-pic" id="adminProfilePic">
+          <div>
+            <h3 id="adminName" style="color: var(--secondary-color);">پنل مدیر</h3>
+            <p>سطح دسترسی: مدیر کل</p>
+          </div>
+        </div>
+        
+        <div class="admin-menu">
+          <button class="btn btn-primary menu-btn" onclick="showSection('registerEmployee')">
+            <i class="fas fa-user-plus icon-3d"></i> ثبت کارمند
+          </button>
+          <button class="btn btn-primary menu-btn" onclick="showSection('viewEmployees')">
+            <i class="fas fa-users icon-3d"></i> مشاهده کارمندان
+          </button>
+          <button class="btn btn-primary menu-btn" onclick="showSection('viewRequests')">
+            <i class="fas fa-list icon-3d"></i> مشاهده درخواست‌ها
+          </button>
+          <button class="btn btn-primary menu-btn" onclick="showSection('changeAdminPassword')">
+            <i class="fas fa-key icon-3d"></i> تغییر رمز
+          </button>
+          <button class="btn btn-primary menu-btn" onclick="showSection('updateAdminProfile')">
+            <i class="fas fa-user-edit icon-3d"></i> ویرایش پروفایل
+          </button>
+          <button class="btn btn-primary menu-btn" onclick="showSection('exportData')">
+            <i class="fas fa-file-export icon-3d"></i> خروجی اطلاعات
+          </button>
+          <button class="btn btn-primary menu-btn" onclick="showSection('registerTransport')">
+            <i class="fas fa-car-side icon-3d"></i> ثبت مسئول نقلیه
+          </button>
+          <button class="btn btn-danger menu-btn" onclick="resetSystem()">
+            <i class="fas fa-trash icon-3d"></i> ریست سیستم
+          </button>
+          <button class="btn btn-logout" onclick="logout()">
+            <i class="fas fa-sign-out-alt"></i> خروج از سیستم
+          </button>
+        </div>
+      </div>
+      
+      <!-- بخش‌های مختلف پنل مدیر -->
+      <div id="registerEmployee" class="card hidden">
+        <h3 class="section-title">ثبت کارمند جدید</h3>
+        <div class="form-group">
+          <label for="employeeLastName">نام خانوادگی:</label>
+          <input type="text" id="employeeLastName" placeholder="فقط نام خانوادگی را وارد کنید">
+          <small>نام کوچک نیاز نیست</small>
+        </div>
+        <div class="form-group">
+          <label for="employeePassword">رمز عبور:</label>
+          <input type="password" id="employeePassword" placeholder="رمز عبور را وارد کنید">
+        </div>
+        <div class="form-group">
+          <label for="employeePhoto">عکس پروفایل:</label>
+          <input type="file" id="employeePhoto" accept="image/*">
+        </div>
+        <button class="btn btn-success" onclick="registerEmployee()">
+          <i class="fas fa-save"></i> ثبت کارمند
+        </button>
+        <button class="btn btn-secondary" onclick="backToAdminMenu()">
+          <i class="fas fa-arrow-right"></i> بازگشت
+        </button>
+      </div>
+      
+      <div id="viewEmployees" class="card hidden">
+        <h3 class="section-title">لیست کارمندان</h3>
+        <div id="employeesList"></div>
+        <button class="btn btn-secondary" onclick="backToAdminMenu()">
+          <i class="fas fa-arrow-right"></i> بازگشت
+        </button>
+      </div>
+      
+      <div id="viewRequests" class="card hidden">
+        <h3 class="section-title">درخواست‌های مأموریت</h3>
+        <div id="requestsListAdmin"></div>
+        <button class="btn btn-secondary" onclick="backToAdminMenu()">
+          <i class="fas fa-arrow-right"></i> بازگشت
+        </button>
+      </div>
+      
+      <div id="changeAdminPassword" class="card hidden">
+        <h3 class="section-title">تغییر رمز عبور مدیر</h3>
+        <div class="form-group">
+          <label for="currentAdminPassword">رمز فعلی:</label>
+          <input type="password" id="currentAdminPassword" placeholder="رمز عبور فعلی را وارد کنید">
+        </div>
+        <div class="form-group">
+          <label for="newAdminPassword">رمز جدید:</label>
+          <input type="password" id="newAdminPassword" placeholder="رمز عبور جدید را وارد کنید">
+        </div>
+        <div class="form-group">
+          <label for="confirmAdminPassword">تکرار رمز جدید:</label>
+          <input type="password" id="confirmAdminPassword" placeholder="رمز عبور جدید را تکرار کنید">
+        </div>
+        <button class="btn btn-success" onclick="changeAdminPassword()">
+          <i class="fas fa-save"></i> تغییر رمز
+        </button>
+        <button class="btn btn-secondary" onclick="backToAdminMenu()">
+          <i class="fas fa-arrow-right"></i> بازگشت
+        </button>
+      </div>
+      
+      <div id="updateAdminProfile" class="card hidden">
+        <h3 class="section-title">ویرایش پروفایل مدیر</h3>
+        <div class="form-group">
+          <label for="adminFullName">نام کامل:</label>
+          <input type="text" id="adminFullName" placeholder="نام کامل را وارد کنید">
+        </div>
+        <div class="form-group">
+          <label for="adminProfileImage">عکس پروفایل:</label>
+          <input type="file" id="adminProfileImage" accept="image/*">
+        </div>
+        <button class="btn btn-success" onclick="updateAdminProfile()">
+          <i class="fas fa-save"></i> ذخیره تغییرات
+        </button>
+        <button class="btn btn-secondary" onclick="backToAdminMenu()">
+          <i class="fas fa-arrow-right"></i> بازگشت
+        </button>
+      </div>
+      
+      <div id="exportData" class="card hidden">
+        <h3 class="section-title">گرفتن خروجی اطلاعات</h3>
+        <div class="form-group">
+          <label for="exportStartDate">تاریخ شروع:</label>
+          <div class="date-container">
+            <input type="text" id="exportStartDate" readonly placeholder="انتخاب تاریخ">
+            <i class="fa fa-calendar-alt" onclick="$('#exportStartDate').pDatepicker('show');"></i>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="exportEndDate">تاریخ پایان:</label>
+          <div class="date-container">
+            <input type="text" id="exportEndDate" readonly placeholder="انتخاب تاریخ">
+            <i class="fa fa-calendar-alt" onclick="$('#exportEndDate').pDatepicker('show');"></i>
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="exportToPDF()">
+          <i class="fas fa-file-pdf"></i> خروجی PDF
+        </button>
+        <button class="btn btn-success" onclick="exportToExcel()">
+          <i class="fas fa-file-excel"></i> خروجی Excel
+        </button>
+        <button class="btn btn-secondary" onclick="backToAdminMenu()">
+          <i class="fas fa-arrow-right"></i> بازگشت
+        </button>
+      </div>
+      
+      <div id="registerTransport" class="card hidden">
+        <h3 class="section-title">ثبت مسئول نقلیه</h3>
+        <div class="form-group">
+          <label for="transportUsername">نام کاربری:</label>
+          <input type="text" id="transportUsername" placeholder="نام کاربری را وارد کنید">
+        </div>
+        <div class="form-group">
+          <label for="transportPassword">رمز عبور:</label>
+          <input type="password" id="transportPassword" placeholder="رمز عبور را وارد کنید">
+        </div>
+        <button class="btn btn-success" onclick="registerTransportManager()">
+          <i class="fas fa-save"></i> ثبت مسئول
+        </button>
+        <button class="btn btn-secondary" onclick="backToAdminMenu()">
+          <i class="fas fa-arrow-right"></i> بازگشت
+        </button>
+      </div>
+    </div>
+    
+    <!-- پنل کارمند -->
+    <div id="employeePanel" class="hidden">
+      <div class="card">
+        <div class="profile-header">
+          <img src="https://via.placeholder.com/60x60?text=Employee" alt="Employee" class="profile-pic" id="employeeProfilePic">
+          <div>
+            <h3 id="employeeName" style="color: var(--secondary-color);">پنل کارمند</h3>
+            <p>سطح دسترسی: کارمند</p>
+          </div>
+        </div>
+        
+        <div class="employee-menu">
+          <button class="btn btn-primary menu-btn" onclick="showSection('requestType')">
+            <i class="fas fa-paper-plane icon-3d"></i> ثبت درخواست
+          </button>
+          <button class="btn btn-primary menu-btn" onclick="showSection('employeeRequests')">
+            <i class="fas fa-list icon-3d"></i> مشاهده درخواست‌ها
+          </button>
+          <button class="btn btn-logout" onclick="logout()">
+            <i class="fas fa-sign-out-alt"></i> خروج از سیستم
+          </button>
+        </div>
+      </div>
+      
+      <!-- بخش انتخاب نوع درخواست -->
+      <div id="requestType" class="card hidden">
+        <h3 class="section-title">ثبت درخواست</h3>
+        <div class="form-group request-type-selector">
+          <label for="requestTypeSelect">نوع درخواست:</label>
+          <select id="requestTypeSelect" onchange="showRequestForm()">
+            <option value="">-- انتخاب کنید --</option>
+            <option value="mission">مأموریت</option>
+            <option value="leave">مرخصی</option>
+          </select>
+        </div>
+        <button class="btn btn-secondary" onclick="backToEmployeeMenu()">
+          <i class="fas fa-arrow-right"></i> بازگشت
+        </button>
+      </div>
+      
+      <!-- فرم درخواست مأموریت -->
+      <div id="missionRequest" class="card hidden">
+        <h3 class="section-title">ثبت درخواست مأموریت</h3>
+        <div class="form-group">
+          <div class="radio-group">
+            <label class="radio-option">
+              <input type="radio" name="missionType" value="driver" checked onchange="toggleCarField()">
+              <i class="fas fa-car"></i> راننده
+            </label>
+            <label class="radio-option">
+              <input type="radio" name="missionType" value="companion" onchange="toggleCarField()">
+              <i class="fas fa-user-friends"></i> همراه
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group" id="carField">
+          <label for="carType">نوع خودرو:</label>
+          <select id="carType">
+            <option value="">انتخاب کنید</option>
+            <option value="personal">🚗 خودرو شخصی</option>
+            <option value="foton">🚚 فوتون</option>
+            <option value="samand_service">🚙 سمند خدماتی</option>
+            <option value="rich">🚘 ریچ</option>
+            <option value="samand_riz">🚙 سمند ریز</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="missionLocation">محل مأموریت:</label>
+          <input type="text" id="missionLocation" placeholder="محل مأموریت را وارد کنید">
+        </div>
+
+        <div class="form-group">
+          <label for="missionDate">تاریخ:</label>
+          <div class="date-container">
+            <input type="text" id="missionDate" readonly placeholder="انتخاب تاریخ">
+            <i class="fa fa-calendar-alt" onclick="$('#missionDate').pDatepicker('show');"></i>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>زمان رفت:</label>
+          <div class="time-picker-container">
+            <select class="time-picker" id="departureHour">
+              <option value="">ساعت</option>
+              <script>
+                for (let i = 0; i < 24; i++) {
+                  document.write(`<option value="${i}">${i.toString().padStart(2, '0')}</option>`);
+                }
+              </script>
+            </select>
+            <select class="time-picker" id="departureMinute">
+              <option value="">دقیقه</option>
+              <script>
+                for (let i = 0; i < 60; i += 5) {
+                  document.write(`<option value="${i}">${i.toString().padStart(2, '0')}</option>`);
+                }
+              </script>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>زمان برگشت:</label>
+          <div class="time-picker-container">
+            <select class="time-picker" id="returnHour">
+              <option value="">ساعت</option>
+              <script>
+                for (let i = 0; i < 24; i++) {
+                  document.write(`<option value="${i}">${i.toString().padStart(2, '0')}</option>`);
+                }
+              </script>
+            </select>
+            <select class="time-picker" id="returnMinute">
+              <option value="">دقیقه</option>
+              <script>
+                for (let i = 0; i < 60; i += 5) {
+                  document.write(`<option value="${i}">${i.toString().padStart(2, '0')}</option>`);
+                }
+              </script>
+            </select>
+          </div>
+        </div>
+
+        <button class="btn btn-success" onclick="submitMissionRequest()">
+          <i class="fas fa-paper-plane"></i> ثبت درخواست
+        </button>
+        <button class="btn btn-secondary" onclick="backToRequestType()">
+          <i class="fas fa-arrow-right"></i> بازگشت
+        </button>
+      </div>
+      
+      <!-- فرم درخواست مرخصی -->
+      <div id="leaveRequest" class="card hidden">
+        <h3 class="section-title">ثبت درخواست مرخصی</h3>
+        
+        <div class="form-group">
+          <label for="leaveDate">تاریخ:</label>
+          <div class="date-container">
+            <input type="text" id="leaveDate" readonly placeholder="انتخاب تاریخ">
+            <i class="fa fa-calendar-alt" onclick="$('#leaveDate').pDatepicker('show');"></i>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>زمان شروع:</label>
+          <div class="time-picker-container">
+            <select class="time-picker" id="leaveStartHour">
+              <option value="">ساعت</option>
+              <script>
+                for (let i = 0; i < 24; i++) {
+                  document.write(`<option value="${i}">${i.toString().padStart(2, '0')}</option>`);
+                }
+              </script>
+            </select>
+            <select class="time-picker" id="leaveStartMinute">
+              <option value="">دقیقه</option>
+              <script>
+                for (let i = 0; i < 60; i += 5) {
+                  document.write(`<option value="${i}">${i.toString().padStart(2, '0')}</option>`);
+                }
+              </script>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>زمان پایان:</label>
+          <div class="time-picker-container">
+            <select class="time-picker" id="leaveEndHour">
+              <option value="">ساعت</option>
+              <script>
+                for (let i = 0; i < 24; i++) {
+                  document.write(`<option value="${i}">${i.toString().padStart(2, '0')}</option>`);
+                }
+              </script>
+            </select>
+            <select class="time-picker" id="leaveEndMinute">
+              <option value="">دقیقه</option>
+              <script>
+                for (let i = 0; i < 60; i += 5) {
+                  document.write(`<option value="${i}">${i.toString().padStart(2, '0')}</option>`);
+                }
+              </script>
+            </select>
+          </div>
+        </div>
+
+        <button class="btn btn-success" onclick="submitLeaveRequest()">
+          <i class="fas fa-paper-plane"></i> ثبت درخواست
+        </button>
+        <button class="btn btn-secondary" onclick="backToRequestType()">
+          <i class="fas fa-arrow-right"></i> بازگشت
+        </button>
+      </div>
+      
+      <div id="employeeRequests" class="card hidden">
+        <h3 class="section-title">درخواست‌های من</h3>
+        <div id="employeeRequestsList"></div>
+        <button class="btn btn-secondary" onclick="backToEmployeeMenu()">
+          <i class="fas fa-arrow-right"></i> بازگشت
+        </button>
+      </div>
+    </div>
+    
+    <!-- پنل مسئول نقلیه -->
+    <div id="transportPanel" class="hidden">
+      <div class="card">
+        <div class="profile-header">
+          <img src="https://via.placeholder.com/60x60?text=Transport" alt="Transport" class="profile-pic" id="transportProfilePic">
+          <div>
+            <h3 style="color: var(--secondary-color);">پنل مسئول نقلیه</h3>
+            <p>سطح دسترسی: مسئول نقلیه</p>
+          </div>
+        </div>
+        
+        <div class="transport-menu">
+          <button class="btn btn-primary menu-btn" onclick="showSection('approvedRequests')">
+            <i class="fas fa-check-circle icon-3d"></i> درخواست‌های تایید شده
+          </button>
+          <button class="btn btn-primary menu-btn" onclick="showSection('transportPendingRequests')">
+            <i class="fas fa-clock icon-3d"></i> درخواست‌های در انتظار تایید
+          </button>
+          <button class="btn btn-primary menu-btn" onclick="showSection('searchRequests')">
+            <i class="fas fa-search icon-3d"></i> جستجو در درخواست‌ها
+          </button>
+          <button class="btn btn-logout" onclick="logout()">
+            <i class="fas fa-sign-out-alt"></i> خروج از سیستم
+          </button>
+        </div>
+      </div>
+      
+      <!-- بخش‌های مختلف پنل مسئول نقلیه -->
+      <div id="approvedRequests" class="card hidden">
+        <h3 class="section-title">درخواست‌های تایید شده</h3>
+        <div id="transportRequestsList"></div>
+        <button class="btn btn-secondary" onclick="backToTransportMenu()">
+          <i class="fas fa-arrow-right"></i> بازگشت
+        </button>
+      </div>
+      
+      <div id="transportPendingRequests" class="card hidden">
+        <h3 class="section-title">درخواست‌های در انتظار تایید</h3>
+        <div id="transportPendingList"></div>
+        <button class="btn btn-secondary" onclick="backToTransportMenu()">
+          <i class="fas fa-arrow-right"></i> بازگشت
+        </button>
+      </div>
+      
+      <div id="searchRequests" class="card hidden">
+        <h3 class="section-title">جستجو در درخواست‌ها</h3>
+        <div class="form-group">
+          <label for="searchCarType">نوع خودرو:</label>
+          <select id="searchCarType">
+            <option value="">همه</option>
+            <option value="personal">🚗 خودرو شخصی</option>
+            <option value="foton">🚚 فوتون</option>
+            <option value="samand_service">🚙 سمند خدماتی</option>
+            <option value="rich">🚘 ریچ</option>
+            <option value="samand_riz">🚙 سمند ریز</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="searchStartDate">تاریخ شروع:</label>
+          <div class="date-container">
+            <input type="text" id="searchStartDate" readonly placeholder="انتخاب تاریخ">
+            <i class="fa fa-calendar-alt" onclick="$('#searchStartDate').pDatepicker('show');"></i>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="searchEndDate">تاریخ پایان:</label>
+          <div class="date-container">
+            <input type="text" id="searchEndDate" readonly placeholder="انتخاب تاریخ">
+            <i class="fa fa-calendar-alt" onclick="$('#searchEndDate').pDatepicker('show');"></i>
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="searchRequests()">
+          <i class="fas fa-search"></i> جستجو
+        </button>
+        <button class="btn btn-success" onclick="exportSearchToPDF()">
+          <i class="fas fa-file-pdf"></i> خروجی PDF
+        </button>
+        <button class="btn btn-success" onclick="exportSearchToExcel()">
+          <i class="fas fa-file-excel"></i> خروجی Excel
+        </button>
+        <div id="searchResults" style="margin-top: 20px;"></div>
+        <button class="btn btn-secondary" onclick="backToTransportMenu()">
+          <i class="fas fa-arrow-right"></i> بازگشت
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- اسکریپت‌ها -->
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/persian-date/dist/persian-date.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/persian-datepicker@1.2.0/dist/js/persian-datepicker.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  
+  <script>
+    // متغیرهای سیستمی
+    let currentUser = null;
+    let currentRole = null;
+    let employees = JSON.parse(localStorage.getItem('employees')) || [];
+    let transportManager = JSON.parse(localStorage.getItem('transportManager')) || null;
+    let missionRequests = JSON.parse(localStorage.getItem('missionRequests')) || [];
+    let leaveRequests = JSON.parse(localStorage.getItem('leaveRequests')) || [];
+    let adminPassword = localStorage.getItem('adminPassword') || '1335';
+    let adminProfile = JSON.parse(localStorage.getItem('adminProfile')) || { name: 'عباس', photo: 'https://via.placeholder.com/60x60?text=Admin' };
+    let editingEmployeeId = null;
+    
+    // پخش صوت
+    function playSound(soundName) {
+      const sounds = {
+        M1: 'https://raw.githubusercontent.com/yourusername/GR-Attendance-System/main/sounds/M1.mp3',
+        M2: 'https://raw.githubusercontent.com/yourusername/GR-Attendance-System/main/sounds/M2.mp3',
+        M3: 'https://raw.githubusercontent.com/yourusername/GR-Attendance-System/main/sounds/M3.mp3',
+        M4: 'https://raw.githubusercontent.com/yourusername/GR-Attendance-System/main/sounds/M4.mp3',
+        M5: 'https://raw.githubusercontent.com/yourusername/GR-Attendance-System/main/sounds/M5.mp3'
+      };
+      
+      if (sounds[soundName]) {
+        const audio = new Audio(sounds[soundName]);
+        audio.play().catch(e => console.log('خطا در پخش صوت:', e));
+      }
+    }
+    
+    // نمایش راهنما
+    function showHelp() {
+      Swal.fire({
+        title: 'راهنمای سیستم',
+        html: `
+          <div style="text-align: right; direction: rtl;">
+            <h4>دستورالعمل استفاده:</h4>
+            <p>1. مدیر سیستم با نام کاربری "عباس" و رمز پیش‌فرض "1335" وارد شود</p>
+            <p>2. برای ثبت کارمندان جدید از بخش "ثبت کارمند" استفاده کنید</p>
+            <p>3. کارمندان می‌توانند درخواست مأموریت یا مرخصی ثبت کنند</p>
+            <p>4. مدیر می‌تواند درخواست‌ها را تأیید یا رد کند</p>
+            <p>5. مسئول نقلیه می‌تواند درخواست‌های تأیید شده را مشاهده و برای درخواست‌های رانندگان تأیید نهایی انجام دهد</p>
+            <p>6. درخواست‌های همراهان و مرخصی فقط توسط مدیر تأیید می‌شوند</p>
+          </div>
+        `,
+        icon: 'info',
+        background: '#1e1e1e',
+        color: '#ffffff',
+        confirmButtonText: 'متوجه شدم'
+      });
+    }
+    
+    // نمایش فرم ورود
+    function showLoginForm(role) {
+      currentRole = role;
+      $('#loginPage').addClass('hidden');
+      
+      let title = '';
+      switch(role) {
+        case 'admin':
+          title = '👑 ورود مدیر';
+          break;
+        case 'employee':
+          title = '👤 ورود کارمند';
+          break;
+        case 'transport':
+          title = '🚗 ورود مسئول نقلیه';
+          break;
+      }
+      
+      $('#loginFormTitle').text(title);
+      $('#loginForm').removeClass('hidden').addClass('fade-in');
+      
+      if (role === 'admin') {
+        $('#username').val('عباس');
+      } else {
+        $('#username').val('');
+      }
+      $('#password').val('');
+    }
+    
+    // بازگشت به صفحه ورود
+    function backToLoginPage() {
+      $('#loginForm').addClass('hidden');
+      $('#loginPage').removeClass('hidden').addClass('fade-in');
+      currentRole = null;
+    }
+    
+    // ورود به سیستم
+    function login() {
+      const username = $('#username').val().trim();
+      const password = $('#password').val().trim();
+      
+      if (!username || !password) {
+        Swal.fire({
+          title: 'خطا',
+          text: 'لطفاً نام کاربری و رمز عبور را وارد کنید',
+          icon: 'error',
+          background: '#1e1e1e',
+          color: '#ffffff',
+          confirmButtonText: 'متوجه شدم'
+        });
+        return;
+      }
+      
+      if (currentRole === 'admin') {
+        if (username === 'عباس' && password === adminPassword) {
+          currentUser = { 
+            name: adminProfile.name, 
+            role: 'admin', 
+            photo: adminProfile.photo 
+          };
+          showAdminPanel();
+        } else {
+          Swal.fire({
+            title: 'خطا',
+            text: 'نام کاربری یا رمز عبور اشتباه است',
+            icon: 'error',
+            background: '#1e1e1e',
+            color: '#ffffff',
+            confirmButtonText: 'متوجه شدم'
+          });
+        }
+      } 
+      else if (currentRole === 'employee') {
+        const employee = employees.find(emp => emp.lastName === username && emp.password === password);
+        if (employee) {
+          currentUser = { 
+            name: employee.lastName, 
+            role: 'employee',
+            photo: employee.photo || 'https://via.placeholder.com/60x60?text=Employee'
+          };
+          showEmployeePanel();
+        } else {
+          Swal.fire({
+            title: 'خطا',
+            text: 'نام کاربری یا رمز عبور اشتباه است',
+            icon: 'error',
+            background: '#1e1e1e',
+            color: '#ffffff',
+            confirmButtonText: 'متوجه شدم'
+          });
+        }
+      }
+      else if (currentRole === 'transport') {
+        if (transportManager && username === transportManager.username && password === transportManager.password) {
+          currentUser = { 
+            name: 'مسئول نقلیه', 
+            role: 'transport',
+            photo: 'https://via.placeholder.com/60x60?text=Transport'
+          };
+          showTransportPanel();
+        } else {
+          Swal.fire({
+            title: 'خطا',
+            text: 'نام کاربری یا رمز عبور اشتباه است',
+            icon: 'error',
+            background: '#1e1e1e',
+            color: '#ffffff',
+            confirmButtonText: 'متوجه شدم'
+          });
+        }
+      }
+    }
+    
+    // نمایش پنل مدیر
+    function showAdminPanel() {
+      $('#loginForm').addClass('hidden');
+      $('#adminPanel').removeClass('hidden').addClass('fade-in');
+      $('#adminName').text(`مدیر: ${currentUser.name}`);
+      $('#adminProfilePic').attr('src', currentUser.photo);
+      
+      // بارگذاری داده‌ها
+      loadEmployees();
+      loadAdminRequests();
+      
+      // پخش صوت راهنمای ورود
+      playSound('M1');
+    }
+    
+    // نمایش پنل کارمند
+    function showEmployeePanel() {
+      $('#loginForm').addClass('hidden');
+      $('#employeePanel').removeClass('hidden').addClass('fade-in');
+      $('#employeeName').text(`کارمند: ${currentUser.name}`);
+      $('#employeeProfilePic').attr('src', currentUser.photo);
+      
+      // بارگذاری درخواست‌های کارمند
+      loadEmployeeRequests();
+    }
+    
+    // نمایش پنل مسئول نقلیه
+    function showTransportPanel() {
+      $('#loginForm').addClass('hidden');
+      $('#transportPanel').removeClass('hidden').addClass('fade-in');
+      $('#transportProfilePic').attr('src', currentUser.photo);
+      
+      // بارگذاری درخواست‌های تایید شده
+      loadTransportRequests();
+      loadTransportPendingRequests();
+    }
+    
+    // خروج از سیستم
+    function logout() {
+      currentUser = null;
+      currentRole = null;
+      $('#adminPanel').addClass('hidden');
+      $('#employeePanel').addClass('hidden');
+      $('#transportPanel').addClass('hidden');
+      $('#loginPage').removeClass('hidden').addClass('fade-in');
+    }
+    
+    // نمایش بخش‌های مختلف
+    function showSection(sectionId) {
+      // مخفی کردن همه بخش‌ها
+      if (currentRole === 'admin') {
+        $('#adminPanel > .card').addClass('hidden');
+        $(`#${sectionId}`).removeClass('hidden').addClass('fade-in');
+      }
+      else if (currentRole === 'employee') {
+        $('#employeePanel > .card').addClass('hidden');
+        $(`#${sectionId}`).removeClass('hidden').addClass('fade-in');
+      }
+      else if (currentRole === 'transport') {
+        $('#transportPanel > .card').addClass('hidden');
+        $(`#${sectionId}`).removeClass('hidden').addClass('fade-in');
+      }
+    }
+    
+    // بازگشت به منوی مدیر
+    function backToAdminMenu() {
+      $('#adminPanel > .card').not(':first').addClass('hidden');
+      $('#adminPanel > .card:first').removeClass('hidden').addClass('fade-in');
+    }
+    
+    // بازگشت به منوی کارمند
+    function backToEmployeeMenu() {
+      $('#employeePanel > .card').not(':first').addClass('hidden');
+      $('#employeePanel > .card:first').removeClass('hidden').addClass('fade-in');
+    }
+    
+    // بازگشت به منوی انتخاب نوع درخواست
+    function backToRequestType() {
+      $('#missionRequest').addClass('hidden');
+      $('#leaveRequest').addClass('hidden');
+      $('#requestType').removeClass('hidden').addClass('fade-in');
+    }
+    
+    // بازگشت به منوی مسئول نقلیه
+    function backToTransportMenu() {
+      $('#transportPanel > .card').not(':first').addClass('hidden');
+      $('#transportPanel > .card:first').removeClass('hidden').addClass('fade-in');
+    }
+    
+    // نمایش فرم درخواست بر اساس نوع انتخاب شده
+    function showRequestForm() {
+      const requestType = $('#requestTypeSelect').val();
+      
+      if (requestType === 'mission') {
+        $('#requestType').addClass('hidden');
+        $('#missionRequest').removeClass('hidden').addClass('fade-in');
+      } else if (requestType === 'leave') {
+        $('#requestType').addClass('hidden');
+        $('#leaveRequest').removeClass('hidden').addClass('fade-in');
+      }
+    }
+    
+    // ثبت کارمند جدید
+    function registerEmployee() {
+      const lastName = $('#employeeLastName').val().trim();
+      const password = $('#employeePassword').val().trim();
+      const photoFile = $('#employeePhoto')[0].files[0];
+      
+      if (!lastName || !password) {
+        Swal.fire({
+          title: 'خطا',
+          text: 'لطفاً نام خانوادگی و رمز عبور را وارد کنید',
+          icon: 'error',
+          background: '#1e1e1e',
+          color: '#ffffff',
+          confirmButtonText: 'متوجه شدم'
+        });
+        return;
+      }
+      
+      if (editingEmployeeId) {
+        // ویرایش کارمند موجود
+        const index = employees.findIndex(emp => emp.id === editingEmployeeId);
+        if (index !== -1) {
+          employees[index].lastName = lastName;
+          employees[index].password = password;
+          
+          if (photoFile) {
+            employees[index].photo = URL.createObjectURL(photoFile);
+          }
+          
+          localStorage.setItem('employees', JSON.stringify(employees));
+          
+          Swal.fire({
+            title: 'موفق',
+            text: 'اطلاعات کارمند با موفقیت به‌روزرسانی شد',
+            icon: 'success',
+            background: '#1e1e1e',
+            color: '#ffffff',
+            confirmButtonText: 'متوجه شدم'
+          });
+          
+          editingEmployeeId = null;
+        }
+      } else {
+        // ثبت کارمند جدید
+        if (employees.some(emp => emp.lastName === lastName)) {
+          Swal.fire({
+            title: 'خطا',
+            text: 'کارمند با این نام خانوادگی قبلاً ثبت شده است',
+            icon: 'error',
+            background: '#1e1e1e',
+            color: '#ffffff',
+            confirmButtonText: 'متوجه شدم'
+          });
+          return;
+        }
+        
+        let photoUrl = 'https://via.placeholder.com/60x60?text=Employee';
+        if (photoFile) {
+          photoUrl = URL.createObjectURL(photoFile);
+        }
+        
+        const newEmployee = {
+          id: Date.now(),
+          lastName,
+          password,
+          photo: photoUrl
+        };
+        
+        employees.push(newEmployee);
+        localStorage.setItem('employees', JSON.stringify(employees));
+        
+        Swal.fire({
+          title: 'موفق',
+          text: 'کارمند جدید با موفقیت ثبت شد',
+          icon: 'success',
+          background: '#1e1e1e',
+          color: '#ffffff',
+          confirmButtonText: 'متوجه شدم'
+        });
+        playSound('M3');
+      }
+      
+      // ریست فرم
+      $('#employeeLastName').val('');
+      $('#employeePassword').val('');
+      $('#employeePhoto').val('');
+      
+      // بارگذاری مجدد لیست کارمندان
+      loadEmployees();
+      
+      // بازگشت به منوی اصلی
+      backToAdminMenu();
+    }
+    
+    // نمایش لیست کارمندان
+    function loadEmployees() {
+      let html = '';
+      employees.forEach(employee => {
+        html += `
+          <div class="request-item">
+            <div class="profile-header" style="margin-bottom: 10px;">
+              <img src="${employee.photo}" alt="${employee.lastName}" class="profile-pic" style="width: 40px; height: 40px;">
+              <h4>${employee.lastName}</h4>
+            </div>
+            <div class="action-btns">
+              <button class="btn btn-warning action-btn" onclick="editEmployee(${employee.id})">
+                <i class="fas fa-edit"></i> ویرایش
+              </button>
+              <button class="btn btn-danger action-btn" onclick="deleteEmployee(${employee.id})">
+                <i class="fas fa-trash"></i> حذف
+              </button>
+            </div>
+          </div>
+        `;
+      });
+      
+      $('#employeesList').html(html || '<p>هیچ کارمندی ثبت نشده است</p>');
+    }
+    
+    // ویرایش کارمند
+    function editEmployee(employeeId) {
+      const employee = employees.find(emp => emp.id === employeeId);
+      if (employee) {
+        editingEmployeeId = employee.id;
+        $('#employeeLastName').val(employee.lastName);
+        $('#employeePassword').val(employee.password);
+        
+        // نمایش فرم ویرایش
+        showSection('registerEmployee');
+        $('#registerEmployee h3').text('ویرایش کارمند');
+      }
+    }
+    
+    // حذف کارمند
+    function deleteEmployee(employeeId) {
+      Swal.fire({
+        title: 'هشدار',
+        text: 'آیا مطمئن هستید که می‌خواهید این کارمند را حذف کنید؟',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'بله، حذف کن',
+        cancelButtonText: 'انصراف',
+        background: '#1e1e1e',
+        color: '#ffffff'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          employees = employees.filter(emp => emp.id !== employeeId);
+          localStorage.setItem('employees', JSON.stringify(employees));
+          
+          // حذف درخواست‌های مربوط به این کارمند
+          missionRequests = missionRequests.filter(req => req.employeeName !== employees.find(e => e.id === employeeId)?.lastName);
+          localStorage.setItem('missionRequests', JSON.stringify(missionRequests));
+          
+          Swal.fire({
+            title: 'موفق',
+            text: 'کارمند با موفقیت حذف شد',
+            icon: 'success',
+            background: '#1e1e1e',
+            color: '#ffffff',
+            confirmButtonText: 'متوجه شدم'
+          });
+          
+          loadEmployees();
+        }
+      });
+    }
+    
+    // نمایش درخواست‌های مدیر
+    function loadAdminRequests() {
+      let html = '';
+      
+      // نمایش درخواست‌های مأموریت
+      missionRequests.forEach(request => {
+        const statusClass = request.status === 'approved' ? 'approved' : 
+                          request.status === 'rejected' ? 'rejected' : 
+                          request.status === 'transport-approved' ? 'approved' : 'pending';
+        
+        const statusIcon = request.status === 'approved' ? '✅' : 
+                         request.status === 'rejected' ? '❌' : 
+                         request.status === 'transport-approved' ? '✅ (تایید نهایی)' : '🕒';
+        
+        html += `
+          <div class="request-item ${statusClass}">
+            <div style="display: flex; justify-content: space-between;">
+              <strong>${request.employeeName}</strong>
+              <span>${request.date} ${statusIcon} (مأموریت)</span>
+            </div>
+            <div>محل: ${request.location}</div>
+            <div>ساعت: ${request.departureTime} - ${request.returnTime}</div>
+            <div>نوع: ${request.type === 'driver' ? 'راننده (' + request.carType + ')' : 'همراه'}</div>
+            <div class="action-btns">
+              ${request.status === 'pending' ? `
+                <button class="btn btn-success action-btn" onclick="approveRequest(${request.id}, 'mission')">
+                  <i class="fas fa-check"></i> تأیید
+                </button>
+                <button class="btn btn-danger action-btn" onclick="rejectRequest(${request.id}, 'mission')">
+                  <i class="fas fa-times"></i> رد
+                </button>
+              ` : ''}
+              ${request.status === 'approved' && request.type === 'driver' ? `
+                <small>در انتظار تایید نهایی توسط مسئول نقلیه</small>
+              ` : ''}
+            </div>
+          </div>
+        `;
+      });
+      
+      // نمایش درخواست‌های مرخصی
+      leaveRequests.forEach(request => {
+        const statusClass = request.status === 'approved' ? 'approved' : 
+                          request.status === 'rejected' ? 'rejected' : 'pending';
+        
+        const statusIcon = request.status === 'approved' ? '✅' : 
+                         request.status === 'rejected' ? '❌' : '🕒';
+        
+        html += `
+          <div class="request-item ${statusClass}">
+            <div style="display: flex; justify-content: space-between;">
+              <strong>${request.employeeName}</strong>
+              <span>${request.date} ${statusIcon} (مرخصی)</span>
+            </div>
+            <div>ساعت: ${request.startTime} - ${request.endTime}</div>
+            <div class="action-btns">
+              ${request.status === 'pending' ? `
+                <button class="btn btn-success action-btn" onclick="approveRequest(${request.id}, 'leave')">
+                  <i class="fas fa-check"></i> تأیید
+                </button>
+                <button class="btn btn-danger action-btn" onclick="rejectRequest(${request.id}, 'leave')">
+                  <i class="fas fa-times"></i> رد
+                </button>
+              ` : ''}
+            </div>
+          </div>
+        `;
+      });
+      
+      $('#requestsListAdmin').html(html || '<p>هیچ درخواستی ثبت نشده است</p>');
+    }
+    
+    // نمایش درخواست‌های کارمند
+    function loadEmployeeRequests() {
+      if (!currentUser) return;
+      
+      let html = '';
+      
+      // نمایش درخواست‌های مأموریت
+      const employeeMissionRequests = missionRequests.filter(req => req.employeeName === currentUser.name);
+      employeeMissionRequests.forEach(request => {
+        const statusClass = request.status === 'approved' ? 'approved' : 
+                          request.status === 'rejected' ? 'rejected' : 
+                          request.status === 'transport-approved' ? 'approved' : 'pending';
+        const statusText = request.status === 'approved' ? 
+                          (request.type === 'driver' ? '✅ تأیید شده (در انتظار مسئول نقلیه)' : '✅ تأیید شده') : 
+                         request.status === 'rejected' ? '❌ رد شده' : 
+                         request.status === 'transport-approved' ? '✅ تأیید نهایی شده' : '🕒 در انتظار';
+        
+        html += `
+          <div class="request-item ${statusClass}">
+            <div style="display: flex; justify-content: space-between;">
+              <strong>${request.date}</strong>
+              <span>${statusText} (مأموریت)</span>
+            </div>
+            <div>محل: ${request.location}</div>
+            <div>ساعت: ${request.departureTime} - ${request.returnTime}</div>
+            <div>نوع: ${request.type === 'driver' ? 'راننده (' + request.carType + ')' : 'همراه'}</div>
+          </div>
+        `;
+      });
+      
+      // نمایش درخواست‌های مرخصی
+      const employeeLeaveRequests = leaveRequests.filter(req => req.employeeName === currentUser.name);
+      employeeLeaveRequests.forEach(request => {
+        const statusClass = request.status === 'approved' ? 'approved' : 
+                          request.status === 'rejected' ? 'rejected' : 'pending';
+        const statusText = request.status === 'approved' ? '✅ تأیید شده' : 
+                         request.status === 'rejected' ? '❌ رد شده' : '🕒 در انتظار';
+        
+        html += `
+          <div class="request-item ${statusClass}">
+            <div style="display: flex; justify-content: space-between;">
+              <strong>${request.date}</strong>
+              <span>${statusText} (مرخصی)</span>
+            </div>
+            <div>ساعت: ${request.startTime} - ${request.endTime}</div>
+          </div>
+        `;
+      });
+      
+      $('#employeeRequestsList').html(html || '<p>هیچ درخواستی ثبت نکرده‌اید</p>');
+    }
+    
+    // نمایش درخواست‌های تایید شده برای مسئول نقلیه
+    function loadTransportRequests() {
+      const approvedRequests = missionRequests.filter(req => 
+        req.status === 'transport-approved' || 
+        (req.status === 'approved' && req.type === 'companion')
+      );
+      
+      let html = '';
+      approvedRequests.forEach(request => {
+        html += `
+          <div class="request-item approved">
+            <div style="display: flex; justify-content: space-between;">
+              <strong>${request.employeeName}</strong>
+              <span>${request.date}</span>
+            </div>
+            <div>محل: ${request.location}</div>
+            <div>ساعت: ${request.departureTime} - ${request.returnTime}</div>
+            <div>نوع خودرو: ${request.carType || '-'}</div>
+            <div>نوع: ${request.type === 'driver' ? 'راننده' : 'همراه'}</div>
+            <div>وضعیت: ${request.status === 'transport-approved' ? 'تایید نهایی شده' : 'تایید شده'}</div>
+          </div>
+        `;
+      });
+      
+      $('#transportRequestsList').html(html || '<p>هیچ درخواست تایید شده‌ای وجود ندارد</p>');
+    }
+    
+    // نمایش درخواست‌های در انتظار تایید مسئول نقلیه
+    function loadTransportPendingRequests() {
+      const pendingRequests = missionRequests.filter(req => 
+        req.status === 'approved' && req.type === 'driver'
+      );
+      
+      let html = '';
+      pendingRequests.forEach(request => {
+        html += `
+          <div class="request-item transport-pending">
+            <div style="display: flex; justify-content: space-between;">
+              <strong>${request.employeeName}</strong>
+              <span>${request.date}</span>
+            </div>
+            <div>محل: ${request.location}</div>
+            <div>ساعت: ${request.departureTime} - ${request.returnTime}</div>
+            <div>نوع خودرو: ${request.carType || '-'}</div>
+            <div class="action-btns">
+              <button class="btn btn-success action-btn" onclick="transportApproveRequest(${request.id})">
+                <i class="fas fa-check"></i> تأیید نهایی
+              </button>
+              <button class="btn btn-danger action-btn" onclick="transportRejectRequest(${request.id})">
+                <i class="fas fa-times"></i> رد
+              </button>
+            </div>
+          </div>
+        `;
+      });
+      
+      $('#transportPendingList').html(html || '<p>هیچ درخواستی برای تایید نهایی وجود ندارد</p>');
+    }
+    
+    // ثبت درخواست مأموریت
+    function submitMissionRequest() {
+      if (!currentUser) return;
+      
+      const type = $('input[name="missionType"]:checked').val();
+      const carType = type === 'driver' ? $('#carType').val() : null;
+      const location = $('#missionLocation').val().trim();
+      const date = $('#missionDate').val().split(' - ')[0];
+      const departureHour = $('#departureHour').val();
+      const departureMinute = $('#departureMinute').val();
+      const returnHour = $('#returnHour').val();
+      const returnMinute = $('#returnMinute').val();
+      
+      if (!location || !date || !departureHour || !departureMinute || !returnHour || !returnMinute) {
+        Swal.fire({
+          title: 'خطا',
+          text: 'لطفاً تمام فیلدهای ضروری را پر کنید',
+          icon: 'error',
+          background: '#1e1e1e',
+          color: '#ffffff',
+          confirmButtonText: 'متوجه شدم'
+        });
+        return;
+      }
+      
+      if (type === 'driver' && !carType) {
+        Swal.fire({
+          title: 'خطا',
+          text: 'لطفاً نوع خودرو را انتخاب کنید',
+          icon: 'error',
+          background: '#1e1e1e',
+          color: '#ffffff',
+          confirmButtonText: 'متوجه شدم'
+        });
+        return;
+      }
+      
+      const newRequest = {
+        id: Date.now(),
+        employeeName: currentUser.name,
+        type,
+        carType,
+        location,
+        date,
+        departureTime: `${departureHour}:${departureMinute}`,
+        returnTime: `${returnHour}:${returnMinute}`,
+        status: 'pending',
+        timestamp: new Date().toISOString()
+      };
+      
+      missionRequests.push(newRequest);
+      localStorage.setItem('missionRequests', JSON.stringify(missionRequests));
+      
+      Swal.fire({
+        title: 'موفق',
+        text: 'درخواست مأموریت با موفقیت ثبت شد',
+        icon: 'success',
+        background: '#1e1e1e',
+        color: '#ffffff',
+        confirmButtonText: 'متوجه شدم'
+      });
+      playSound('M2');
+      
+      // ریست فرم
+      $('#missionLocation').val('');
+      $('#missionDate').val('');
+      $('#departureHour, #departureMinute, #returnHour, #returnMinute').val('');
+      if (type === 'driver') {
+        $('#carType').val('');
+      }
+      
+      // بارگذاری مجدد لیست درخواست‌ها
+      loadEmployeeRequests();
+      
+      // بازگشت به منوی اصلی
+      backToEmployeeMenu();
+    }
+    
+    // ثبت درخواست مرخصی
+    function submitLeaveRequest() {
+      if (!currentUser) return;
+      
+      const date = $('#leaveDate').val().split(' - ')[0];
+      const startHour = $('#leaveStartHour').val();
+      const startMinute = $('#leaveStartMinute').val();
+      const endHour = $('#leaveEndHour').val();
+      const endMinute = $('#leaveEndMinute').val();
+      
+      if (!date || !startHour || !startMinute || !endHour || !endMinute) {
+        Swal.fire({
+          title: 'خطا',
+          text: 'لطفاً تمام فیلدهای ضروری را پر کنید',
+          icon: 'error',
+          background: '#1e1e1e',
+          color: '#ffffff',
+          confirmButtonText: 'متوجه شدم'
+        });
+        return;
+      }
+      
+      const newRequest = {
+        id: Date.now(),
+        employeeName: currentUser.name,
+        date,
+        startTime: `${startHour}:${startMinute}`,
+        endTime: `${endHour}:${endMinute}`,
+        status: 'pending',
+        timestamp: new Date().toISOString()
+      };
+      
+      leaveRequests.push(newRequest);
+      localStorage.setItem('leaveRequests', JSON.stringify(leaveRequests));
+      
+      Swal.fire({
+        title: 'موفق',
+        text: 'درخواست مرخصی با موفقیت ثبت شد',
+        icon: 'success',
+        background: '#1e1e1e',
+        color: '#ffffff',
+        confirmButtonText: 'متوجه شدم'
+      });
+      playSound('M2');
+      
+      // ریست فرم
+      $('#leaveDate').val('');
+      $('#leaveStartHour, #leaveStartMinute, #leaveEndHour, #leaveEndMinute').val('');
+      
+      // بارگذاری مجدد لیست درخواست‌ها
+      loadEmployeeRequests();
+      
+      // بازگشت به منوی اصلی
+      backToEmployeeMenu();
+    }
+    
+    // نمایش/پنهان کردن فیلد خودرو
+    function toggleCarField() {
+      const type = $('input[name="missionType"]:checked').val();
+      if (type === 'driver') {
+        $('#carField').show();
+      } else {
+        $('#carField').hide();
+      }
+    }
+    
+    // تایید درخواست توسط مدیر
+    function approveRequest(requestId, requestType) {
+      if (requestType === 'mission') {
+        const request = missionRequests.find(req => req.id === requestId);
+        if (request) {
+          request.status = 'approved';
+          localStorage.setItem('missionRequests', JSON.stringify(missionRequests));
+          loadAdminRequests();
+          playSound('M3');
+          Swal.fire({
+            title: 'موفق',
+            text: request.type === 'driver' ? 
+              'درخواست تایید شد و در انتظار تایید نهایی مسئول نقلیه است' : 
+              'درخواست تایید شد',
+            icon: 'success',
+            background: '#1e1e1e',
+            color: '#ffffff',
+            confirmButtonText: 'متوجه شدم'
+          });
+        }
+      } else if (requestType === 'leave') {
+        const request = leaveRequests.find(req => req.id === requestId);
+        if (request) {
+          request.status = 'approved';
+          localStorage.setItem('leaveRequests', JSON.stringify(leaveRequests));
+          loadAdminRequests();
+          playSound('M3');
+          Swal.fire({
+            title: 'موفق',
+            text: 'درخواست مرخصی تایید شد',
+            icon: 'success',
+            background: '#1e1e1e',
+            color: '#ffffff',
+            confirmButtonText: 'متوجه شدم'
+          });
+        }
+      }
+    }
+    
+    // رد درخواست توسط مدیر
+    function rejectRequest(requestId, requestType) {
+      if (requestType === 'mission') {
+        const request = missionRequests.find(req => req.id === requestId);
+        if (request) {
+          request.status = 'rejected';
+          localStorage.setItem('missionRequests', JSON.stringify(missionRequests));
+          loadAdminRequests();
+          playSound('M5');
+          Swal.fire({
+            title: 'موفق',
+            text: 'درخواست رد شد',
+            icon: 'success',
+            background: '#1e1e1e',
+            color: '#ffffff',
+            confirmButtonText: 'متوجه شدم'
+          });
+        }
+      } else if (requestType === 'leave') {
+        const request = leaveRequests.find(req => req.id === requestId);
+        if (request) {
+          request.status = 'rejected';
+          localStorage.setItem('leaveRequests', JSON.stringify(leaveRequests));
+          loadAdminRequests();
+          playSound('M5');
+          Swal.fire({
+            title: 'موفق',
+            text: 'درخواست مرخصی رد شد',
+            icon: 'success',
+            background: '#1e1e1e',
+            color: '#ffffff',
+            confirmButtonText: 'متوجه شدم'
+          });
+        }
+      }
+    }
+    
+    // تایید درخواست توسط مسئول نقلیه
+    function transportApproveRequest(requestId) {
+      const request = missionRequests.find(req => req.id === requestId);
+      if (request) {
+        request.status = 'transport-approved';
+        localStorage.setItem('missionRequests', JSON.stringify(missionRequests));
+        loadTransportPendingRequests();
+        loadTransportRequests();
+        playSound('M4');
+        Swal.fire({
+          title: 'موفق',
+          text: 'درخواست با موفقیت تایید نهایی شد',
+          icon: 'success',
+          background: '#1e1e1e',
+          color: '#ffffff',
+          confirmButtonText: 'متوجه شدم'
+        });
+      }
+    }
+    
+    // رد درخواست توسط مسئول نقلیه
+    function transportRejectRequest(requestId) {
+      const request = missionRequests.find(req => req.id === requestId);
+      if (request) {
+        request.status = 'pending';
+        localStorage.setItem('missionRequests', JSON.stringify(missionRequests));
+        loadTransportPendingRequests();
+        Swal.fire({
+          title: 'موفق',
+          text: 'درخواست رد شد و به وضعیت انتظار بازگشت',
+          icon: 'success',
+          background: '#1e1e1e',
+          color: '#ffffff',
+          confirmButtonText: 'متوجه شدم'
+        });
+      }
+    }
+    
+    // تغییر رمز مدیر
+    function changeAdminPassword() {
+      const currentPassword = $('#currentAdminPassword').val();
+      const newPassword = $('#newAdminPassword').val();
+      const confirmPassword = $('#confirmAdminPassword').val();
+      
+      if (currentPassword !== adminPassword) {
+        Swal.fire({
+          title: 'خطا',
+          text: 'رمز عبور فعلی اشتباه است',
+          icon: 'error',
+          background: '#1e1e1e',
+          color: '#ffffff',
+          confirmButtonText: 'متوجه شدم'
+        });
+        return;
+      }
+      
+      if (newPassword !== confirmPassword) {
+        Swal.fire({
+          title: 'خطا',
+          text: 'رمز عبور جدید و تکرار آن مطابقت ندارند',
+          icon: 'error',
+          background: '#1e1e1e',
+          color: '#ffffff',
+          confirmButtonText: 'متوجه شدم'
+        });
+        return;
+      }
+      
+      adminPassword = newPassword;
+      localStorage.setItem('adminPassword', adminPassword);
+      
+      Swal.fire({
+        title: 'موفق',
+        text: 'رمز عبور با موفقیت تغییر یافت',
+        icon: 'success',
+        background: '#1e1e1e',
+        color: '#ffffff',
+        confirmButtonText: 'متوجه شدم'
+      });
+      
+      $('#currentAdminPassword').val('');
+      $('#newAdminPassword').val('');
+      $('#confirmAdminPassword').val('');
+      
+      // بازگشت به منوی اصلی
+      backToAdminMenu();
+    }
+    
+    // ویرایش پروفایل مدیر
+    function updateAdminProfile() {
+      const fullName = $('#adminFullName').val().trim();
+      const photoFile = $('#adminProfileImage')[0].files[0];
+      
+      if (!fullName) {
+        Swal.fire({
+          title: 'خطا',
+          text: 'لطفاً نام کامل را وارد کنید',
+          icon: 'error',
+          background: '#1e1e1e',
+          color: '#ffffff',
+          confirmButtonText: 'متوجه شدم'
+        });
+        return;
+      }
+      
+      if (photoFile) {
+        adminProfile.photo = URL.createObjectURL(photoFile);
+      }
+      
+      adminProfile.name = fullName;
+      localStorage.setItem('adminProfile', JSON.stringify(adminProfile));
+      
+      // به‌روزرسانی نمایش
+      $('#adminName').text(`مدیر: ${fullName}`);
+      $('#adminProfilePic').attr('src', adminProfile.photo);
+      
+      Swal.fire({
+        title: 'موفق',
+        text: 'پروفایل با موفقیت به‌روزرسانی شد',
+        icon: 'success',
+        background: '#1e1e1e',
+        color: '#ffffff',
+        confirmButtonText: 'متوجه شدم'
+      });
+      
+      // بازگشت به منوی اصلی
+      backToAdminMenu();
+    }
+    
+    // ثبت مسئول نقلیه
+    function registerTransportManager() {
+      const username = $('#transportUsername').val().trim();
+      const password = $('#transportPassword').val().trim();
+      
+      if (!username || !password) {
+        Swal.fire({
+          title: 'خطا',
+          text: 'لطفاً نام کاربری و رمز عبور را وارد کنید',
+          icon: 'error',
+          background: '#1e1e1e',
+          color: '#ffffff',
+          confirmButtonText: 'متوجه شدم'
+        });
+        return;
+      }
+      
+      transportManager = { username, password };
+      localStorage.setItem('transportManager', JSON.stringify(transportManager));
+      
+      Swal.fire({
+        title: 'موفق',
+        text: 'مسئول نقلیه با موفقیت ثبت شد',
+        icon: 'success',
+        background: '#1e1e1e',
+        color: '#ffffff',
+        confirmButtonText: 'متوجه شدم'
+      });
+      
+      $('#transportUsername').val('');
+      $('#transportPassword').val('');
+      
+      // بازگشت به منوی اصلی
+      backToAdminMenu();
+    }
+    
+    // جستجو در درخواست‌ها
+    function searchRequests() {
+      const carType = $('#searchCarType').val();
+      const startDate = $('#searchStartDate').val();
+      const endDate = $('#searchEndDate').val();
+      
+      let results = missionRequests.filter(req => 
+        req.status === 'transport-approved' || 
+        (req.status === 'approved' && req.type === 'companion')
+      );
+      
+      if (carType) {
+        results = results.filter(req => req.carType === carType);
+      }
+      
+      if (startDate) {
+        results = results.filter(req => req.date >= startDate);
+      }
+      
+      if (endDate) {
+        results = results.filter(req => req.date <= endDate);
+      }
+      
+      let html = '';
+      results.forEach(request => {
+        html += `
+          <div class="request-item approved" style="margin-top: 10px;">
+            <div style="display: flex; justify-content: space-between;">
+              <strong>${request.employeeName}</strong>
+              <span>${request.date}</span>
+            </div>
+            <div>محل: ${request.location}</div>
+            <div>ساعت: ${request.departureTime} - ${request.returnTime}</div>
+            <div>نوع خودرو: ${request.carType || '-'}</div>
+            <div>نوع: ${request.type === 'driver' ? 'راننده' : 'همراه'}</div>
+            <div>وضعیت: ${request.status === 'transport-approved' ? 'تایید نهایی شده' : 'تایید شده'}</div>
+          </div>
+        `;
+      });
+      
+      $('#searchResults').html(html || '<p>هیچ نتیجه‌ای یافت نشد</p>');
+    }
+    
+    // خروجی به PDF
+    function exportToPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      
+      doc.setFont('Vazirmatn', 'normal');
+      doc.setTextColor(255, 255, 255);
+      doc.setFillColor(30, 30, 30);
+      doc.rect(0, 0, doc.internal.pageSize.getWidth(), doc.internal.pageSize.getHeight(), 'F');
+      
+      doc.setTextColor(0, 188, 212);
+      doc.setFontSize(20);
+      doc.text('گزارش درخواست‌های مأموریت', 105, 20, { align: 'center' });
+      
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(12);
+      
+      let y = 40;
+      
+      // درخواست‌های مأموریت
+      missionRequests.forEach((req, index) => {
+        doc.text(`${index + 1}. ${req.employeeName} - ${req.date} (مأموریت)`, 20, y);
+        doc.text(`محل: ${req.location}`, 20, y + 10);
+        doc.text(`ساعت: ${req.departureTime} - ${req.returnTime}`, 20, y + 20);
+        doc.text(`وضعیت: ${req.status === 'approved' ? 'تایید شده' : req.status === 'rejected' ? 'رد شده' : req.status === 'transport-approved' ? 'تایید نهایی شده' : 'در انتظار'}`, 20, y + 30);
+        y += 40;
+        
+        if (y > 250) {
+          doc.addPage();
+          doc.setFillColor(30, 30, 30);
+          doc.rect(0, 0, doc.internal.pageSize.getWidth(), doc.internal.pageSize.getHeight(), 'F');
+          y = 20;
+        }
+      });
+      
+      // درخواست‌های مرخصی
+      leaveRequests.forEach((req, index) => {
+        doc.text(`${index + 1}. ${req.employeeName} - ${req.date} (مرخصی)`, 20, y);
+        doc.text(`ساعت: ${req.startTime} - ${req.endTime}`, 20, y + 10);
+        doc.text(`وضعیت: ${req.status === 'approved' ? 'تایید شده' : req.status === 'rejected' ? 'رد شده' : 'در انتظار'}`, 20, y + 20);
+        y += 30;
+        
+        if (y > 250) {
+          doc.addPage();
+          doc.setFillColor(30, 30, 30);
+          doc.rect(0, 0, doc.internal.pageSize.getWidth(), doc.internal.pageSize.getHeight(), 'F');
+          y = 20;
+        }
+      });
+      
+      doc.save('گزارش_درخواست‌ها.pdf');
+    }
+    
+    // خروجی به Excel
+    function exportToExcel() {
+      // داده‌های مأموریت
+      const missionData = missionRequests.map(req => ({
+        'نوع درخواست': 'مأموریت',
+        'نام کارمند': req.employeeName,
+        'تاریخ': req.date,
+        'محل': req.location || '-',
+        'ساعت شروع': req.departureTime,
+        'ساعت پایان': req.returnTime,
+        'نوع': req.type === 'driver' ? 'راننده' : 'همراه',
+        'خودرو': req.carType || '-',
+        'وضعیت': req.status === 'approved' ? 'تایید شده' : 
+                 req.status === 'rejected' ? 'رد شده' : 
+                 req.status === 'transport-approved' ? 'تایید نهایی شده' : 'در انتظار'
+      }));
+      
+      // داده‌های مرخصی
+      const leaveData = leaveRequests.map(req => ({
+        'نوع درخواست': 'مرخصی',
+        'نام کارمند': req.employeeName,
+        'تاریخ': req.date,
+        'ساعت شروع': req.startTime,
+        'ساعت پایان': req.endTime,
+        'وضعیت': req.status === 'approved' ? 'تایید شده' : 
+                 req.status === 'rejected' ? 'رد شده' : 'در انتظار'
+      }));
+      
+      // ترکیب داده‌ها
+      const data = [...missionData, ...leaveData];
+      
+      const ws = XLSX.utils.json_to_sheet(data);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "گزارش درخواست‌ها");
+      XLSX.writeFile(wb, "گزارش_درخواست‌ها.xlsx");
+    }
+    
+    // خروجی جستجو به PDF
+    function exportSearchToPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      
+      doc.setFont('Vazirmatn', 'normal');
+      doc.setTextColor(255, 255, 255);
+      doc.setFillColor(30, 30, 30);
+      doc.rect(0, 0, doc.internal.pageSize.getWidth(), doc.internal.pageSize.getHeight(), 'F');
+      
+      doc.setTextColor(0, 188, 212);
+      doc.setFontSize(20);
+      doc.text('گزارش جستجوی مأموریت‌ها', 105, 20, { align: 'center' });
+      
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(12);
+      
+      const carType = $('#searchCarType').val();
+      const startDate = $('#searchStartDate').val();
+      const endDate = $('#searchEndDate').val();
+      
+      let results = missionRequests.filter(req => 
+        req.status === 'transport-approved' || 
+        (req.status === 'approved' && req.type === 'companion')
+      );
+      
+      if (carType) {
+        results = results.filter(req => req.carType === carType);
+      }
+      
+      if (startDate) {
+        results = results.filter(req => req.date >= startDate);
+      }
+      
+      if (endDate) {
+        results = results.filter(req => req.date <= endDate);
+      }
+      
+      let y = 40;
+      results.forEach((req, index) => {
+        doc.text(`${index + 1}. ${req.employeeName} - ${req.date}`, 20, y);
+        doc.text(`محل: ${req.location}`, 20, y + 10);
+        doc.text(`ساعت: ${req.departureTime} - ${req.returnTime}`, 20, y + 20);
+        doc.text(`نوع خودرو: ${req.carType || '-'}`, 20, y + 30);
+        doc.text(`نوع: ${req.type === 'driver' ? 'راننده' : 'همراه'}`, 20, y + 40);
+        doc.text(`وضعیت: ${req.status === 'transport-approved' ? 'تایید نهایی شده' : 'تایید شده'}`, 20, y + 50);
+        y += 60;
+        
+        if (y > 250) {
+          doc.addPage();
+          doc.setFillColor(30, 30, 30);
+          doc.rect(0, 0, doc.internal.pageSize.getWidth(), doc.internal.pageSize.getHeight(), 'F');
+          y = 20;
+        }
+      });
+      
+      doc.save('گزارش_جستجوی_مأموریت.pdf');
+    }
+    
+    // خروجی جستجو به Excel
+    function exportSearchToExcel() {
+      const carType = $('#searchCarType').val();
+      const startDate = $('#searchStartDate').val();
+      const endDate = $('#searchEndDate').val();
+      
+      let results = missionRequests.filter(req => 
+        req.status === 'transport-approved' || 
+        (req.status === 'approved' && req.type === 'companion')
+      );
+      
+      if (carType) {
+        results = results.filter(req => req.carType === carType);
+      }
+      
+      if (startDate) {
+        results = results.filter(req => req.date >= startDate);
+      }
+      
+      if (endDate) {
+        results = results.filter(req => req.date <= endDate);
+      }
+      
+      const data = results.map(req => ({
+        'نام کارمند': req.employeeName,
+        'تاریخ': req.date,
+        'محل': req.location,
+        'ساعت شروع': req.departureTime,
+        'ساعت پایان': req.returnTime,
+        'نوع خودرو': req.carType || '-',
+        'نوع': req.type === 'driver' ? 'راننده' : 'همراه',
+        'وضعیت': req.status === 'transport-approved' ? 'تایید نهایی شده' : 'تایید شده'
+      }));
+      
+      const ws = XLSX.utils.json_to_sheet(data);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "گزارش جستجو");
+      XLSX.writeFile(wb, "گزارش_جستجوی_مأموریت.xlsx");
+    }
+    
+    // ریست سیستم
+    function resetSystem() {
+      Swal.fire({
+        title: 'هشدار',
+        text: 'آیا مطمئن هستید که می‌خواهید تمام اطلاعات سیستم را پاک کنید؟',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'بله، پاک کن',
+        cancelButtonText: 'انصراف',
+        background: '#1e1e1e',
+        color: '#ffffff'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          localStorage.clear();
+          employees = [];
+          transportManager = null;
+          missionRequests = [];
+          leaveRequests = [];
+          adminPassword = '1335';
+          adminProfile = { name: 'عباس', photo: 'https://via.placeholder.com/60x60?text=Admin' };
+          
+          Swal.fire({
+            title: 'موفق',
+            text: 'تمام اطلاعات سیستم با موفقیت پاک شد',
+            icon: 'success',
+            background: '#1e1e1e',
+            color: '#ffffff',
+            confirmButtonText: 'متوجه شدم'
+          });
+          logout();
+        }
+      });
+    }
+    
+    // مقداردهی اولیه
+    $(document).ready(function() {
+      // تنظیم تقویم فارسی
+      $('#missionDate, #leaveDate, #exportStartDate, #exportEndDate, #searchStartDate, #searchEndDate').pDatepicker({
+        format: 'YYYY/MM/DD',
+        autoClose: true,
+        calendarType: 'persian',
+        initialValue: false,
+        toolbox: {
+          calendarSwitch: {
+            enabled: false
+          },
+          todayButton: {
+            enabled: true,
+            text: {
+              fa: "📌 امروز"
+            }
+          },
+          submitButton: {
+            enabled: false
+          }
+        },
+        onShow: function() {
+          $('.datepicker-plot-area').css({
+            'background-color': '#1e1e1e',
+            'color': '#ffffff'
+          });
+        }
+      });
+      
+      // بارگذاری پروفایل مدیر
+      if (adminProfile) {
+        $('#adminFullName').val(adminProfile.name);
+      }
+      
+      // پخش صوت راهنمای ورود
+      playSound('M1');
+    });
+  </script>
+</body>
+</html>
