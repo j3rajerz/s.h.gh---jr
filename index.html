@@ -1033,14 +1033,24 @@
     // متغیرهای سیستمی
     let currentUser = null;
     let currentRole = null;
-    let employees = JSON.parse(localStorage.getItem('employees')) || [];
-    let transportManager = JSON.parse(localStorage.getItem('transportManager')) || null;
-    let missionRequests = JSON.parse(localStorage.getItem('missionRequests')) || [];
-    let leaveRequests = JSON.parse(localStorage.getItem('leaveRequests')) || [];
-    let adminPassword = localStorage.getItem('adminPassword') || '1335';
-    let adminProfile = JSON.parse(localStorage.getItem('adminProfile')) || { name: 'عباس', photo: 'https://via.placeholder.com/60x60?text=Admin' };
-    let editingEmployeeId = null;
-    
+    let employees = [];
+let transportManager = null;
+let missionRequests = [];
+let leaveRequests = [];
+let adminPassword = '1335';
+let adminProfile = { name: 'عباس', photo: 'https://via.placeholder.com/60x60?text=Admin' };
+
+// بارگذاری از JSONBin
+loadDataFromJSONBin().then(data => {
+  if (data) {
+    employees         = data.employees         || [];
+    transportManager  = data.transportManager  || null;
+    missionRequests   = data.missionRequests   || [];
+    leaveRequests     = data.leaveRequests     || [];
+    adminPassword     = data.adminPassword     || '1335';
+    adminProfile      = data.adminProfile      || { name: 'عباس', photo: 'https://via.placeholder.com/60x60?text=Admin' };
+  }
+});    
     // پخش صوت
     function playSound(soundName) {
       const sounds = {
@@ -1296,97 +1306,70 @@
     
     // ثبت کارمند جدید
     function registerEmployee() {
-      const lastName = $('#employeeLastName').val().trim();
-      const password = $('#employeePassword').val().trim();
-      const photoFile = $('#employeePhoto')[0].files[0];
-      
-      if (!lastName || !password) {
-        Swal.fire({
-          title: 'خطا',
-          text: 'لطفاً نام خانوادگی و رمز عبور را وارد کنید',
-          icon: 'error',
-          background: '#1e1e1e',
-          color: '#ffffff',
-          confirmButtonText: 'متوجه شدم'
-        });
-        return;
-      }
-      
-      if (editingEmployeeId) {
-        // ویرایش کارمند موجود
-        const index = employees.findIndex(emp => emp.id === editingEmployeeId);
-        if (index !== -1) {
-          employees[index].lastName = lastName;
-          employees[index].password = password;
-          
-          if (photoFile) {
-            employees[index].photo = URL.createObjectURL(photoFile);
-          }
-          
-          localStorage.setItem('employees', JSON.stringify(employees));
-          
-          Swal.fire({
-            title: 'موفق',
-            text: 'اطلاعات کارمند با موفقیت به‌روزرسانی شد',
-            icon: 'success',
-            background: '#1e1e1e',
-            color: '#ffffff',
-            confirmButtonText: 'متوجه شدم'
-          });
-          
-          editingEmployeeId = null;
-        }
-      } else {
-        // ثبت کارمند جدید
-        if (employees.some(emp => emp.lastName === lastName)) {
-          Swal.fire({
-            title: 'خطا',
-            text: 'کارمند با این نام خانوادگی قبلاً ثبت شده است',
-            icon: 'error',
-            background: '#1e1e1e',
-            color: '#ffffff',
-            confirmButtonText: 'متوجه شدم'
-          });
-          return;
-        }
-        
-        let photoUrl = 'https://via.placeholder.com/60x60?text=Employee';
-        if (photoFile) {
-          photoUrl = URL.createObjectURL(photoFile);
-        }
-        
-        const newEmployee = {
-          id: Date.now(),
-          lastName,
-          password,
-          photo: photoUrl
-        };
-        
-        employees.push(newEmployee);
-        localStorage.setItem('employees', JSON.stringify(employees));
-        
-        Swal.fire({
-          title: 'موفق',
-          text: 'کارمند جدید با موفقیت ثبت شد',
-          icon: 'success',
-          background: '#1e1e1e',
-          color: '#ffffff',
-          confirmButtonText: 'متوجه شدم'
-        });
-        playSound('M3');
-      }
-      
-      // ریست فرم
-      $('#employeeLastName').val('');
-      $('#employeePassword').val('');
-      $('#employeePhoto').val('');
-      
-      // بارگذاری مجدد لیست کارمندان
-      loadEmployees();
-      
-      // بازگشت به منوی اصلی
-      backToAdminMenu();
-    }
+  const lastName = $('#employeeLastName').val().trim();
+  const password = $('#employeePassword').val().trim();
+  const photoFile = $('#employeePhoto')[0].files[0];
+
+  if (!lastName || !password) {
+    Swal.fire({
+      title: 'خطا',
+      text: 'لطفاً نام خانوادگی و رمز عبور را وارد کنید',
+      icon: 'error',
+      background: '#1e1e1e',
+      color: '#ffffff',
+      confirmButtonText: 'متوجه شدم'
+    });
+    return;
+  }
+
+  if (employees.some(emp => emp.lastName === lastName)) {
+    Swal.fire({
+      title: 'خطا',
+      text: 'کارمند با این نام خانوادگی قبلاً ثبت شده است',
+      icon: 'error',
+      background: '#1e1e1e',
+      color: '#ffffff',
+      confirmButtonText: 'متوجه شدم'
+    });
+    return;
+  }
+
+  let photoUrl = 'https://via.placeholder.com/60x60?text=Employee';
+  if (photoFile) {
+    photoUrl = URL.createObjectURL(photoFile);
+  }
+
+  const newEmployee = {
+    id: Date.now(),
+    lastName,
+    password,
+    photo: photoUrl
+  };
+
+  employees.push(newEmployee);
+
+  // ذخیره در JSONBin
+  saveAllToJSONBin();
+
+  Swal.fire({
+    title: 'موفق',
+    text: 'کارمند جدید با موفقیت ثبت شد',
+    icon: 'success',
+    background: '#1e1e1e',
+    color: '#ffffff',
+    confirmButtonText: 'متوجه شدم'
+  });
+  playSound('M3');
+
+  // ریست فرم
+  $('#employeeLastName').val('');
+  $('#employeePassword').val('');
+  $('#employeePhoto').val('');
+
+  // نمایش مجدد لیست
+  loadEmployees();
+  backToAdminMenu();
+}
     
     // نمایش لیست کارمندان
     function loadEmployees() {
@@ -1441,7 +1424,7 @@
       }).then((result) => {
         if (result.isConfirmed) {
           employees = employees.filter(emp => emp.id !== employeeId);
-          localStorage.setItem('employees', JSON.stringify(employees));
+          saveAllToJSONBin();
           
           // حذف درخواست‌های مربوط به این کارمند
           missionRequests = missionRequests.filter(req => req.employeeName !== employees.find(e => e.id === employeeId)?.lastName);
@@ -1463,75 +1446,63 @@
     
     // نمایش درخواست‌های مدیر
     function loadAdminRequests() {
-      let html = '';
-      
-      // نمایش درخواست‌های مأموریت
-      missionRequests.forEach(request => {
-        const statusClass = request.status === 'approved' ? 'approved' : 
-                          request.status === 'rejected' ? 'rejected' : 
-                          request.status === 'transport-approved' ? 'approved' : 'pending';
-        
-        const statusIcon = request.status === 'approved' ? '✅' : 
-                         request.status === 'rejected' ? '❌' : 
-                         request.status === 'transport-approved' ? '✅ (تایید نهایی)' : '🕒';
-        
-        html += `
-          <div class="request-item ${statusClass}">
-            <div style="display: flex; justify-content: space-between;">
-              <strong>${request.employeeName}</strong>
-              <span>${request.date} ${statusIcon} (مأموریت)</span>
-            </div>
-            <div>محل: ${request.location}</div>
-            <div>ساعت: ${request.departureTime} - ${request.returnTime}</div>
-            <div>نوع: ${request.type === 'driver' ? 'راننده (' + request.carType + ')' : 'همراه'}</div>
-            <div class="action-btns">
-              ${request.status === 'pending' ? `
-                <button class="btn btn-success action-btn" onclick="approveRequest(${request.id}, 'mission')">
-                  <i class="fas fa-check"></i> تأیید
-                </button>
-                <button class="btn btn-danger action-btn" onclick="rejectRequest(${request.id}, 'mission')">
-                  <i class="fas fa-times"></i> رد
-                </button>
-              ` : ''}
-              ${request.status === 'approved' && request.type === 'driver' ? `
-                <small>در انتظار تایید نهایی توسط مسئول نقلیه</small>
-              ` : ''}
-            </div>
-          </div>
-        `;
-      });
-      
-      // نمایش درخواست‌های مرخصی
-      leaveRequests.forEach(request => {
-        const statusClass = request.status === 'approved' ? 'approved' : 
-                          request.status === 'rejected' ? 'rejected' : 'pending';
-        
-        const statusIcon = request.status === 'approved' ? '✅' : 
-                         request.status === 'rejected' ? '❌' : '🕒';
-        
-        html += `
-          <div class="request-item ${statusClass}">
-            <div style="display: flex; justify-content: space-between;">
-              <strong>${request.employeeName}</strong>
-              <span>${request.date} ${statusIcon} (مرخصی)</span>
-            </div>
-            <div>ساعت: ${request.startTime} - ${request.endTime}</div>
-            <div class="action-btns">
-              ${request.status === 'pending' ? `
-                <button class="btn btn-success action-btn" onclick="approveRequest(${request.id}, 'leave')">
-                  <i class="fas fa-check"></i> تأیید
-                </button>
-                <button class="btn btn-danger action-btn" onclick="rejectRequest(${request.id}, 'leave')">
-                  <i class="fas fa-times"></i> رد
-                </button>
-              ` : ''}
-            </div>
-          </div>
-        `;
-      });
-      
-      $('#requestsListAdmin').html(html || '<p>هیچ درخواستی ثبت نشده است</p>');
+  const listContainer = $('#requestList');
+  listContainer.empty();
+
+  const allRequests = [...missionRequests, ...leaveRequests];
+
+  if (allRequests.length === 0) {
+    listContainer.append('<div class="text-center text-white mt-3">هیچ درخواستی ثبت نشده است</div>');
+    return;
+  }
+
+  allRequests.forEach(request => {
+    const card = $('<div class="request-card"></div>');
+    card.append(`<div><strong>نوع درخواست:</strong> ${request.type === 'ماموریت' ? 'ماموریت' : 'مرخصی'}</div>`);
+    card.append(`<div><strong>نام کارمند:</strong> ${request.lastName}</div>`);
+    card.append(`<div><strong>تاریخ:</strong> ${request.date}</div>`);
+    if (request.type === 'ماموریت') {
+      card.append(`<div><strong>مقصد:</strong> ${request.destination}</div>`);
+    } else {
+      card.append(`<div><strong>علت مرخصی:</strong> ${request.reason}</div>`);
     }
+
+    // نمایش وضعیت
+    let statusText = '';
+    switch (request.status) {
+      case 'approved':
+        statusText = 'تایید توسط مدیر';
+        break;
+      case 'rejected':
+        statusText = 'رد شده توسط مدیر';
+        break;
+      case 'final-approved':
+        statusText = 'تایید نهایی مسئول نقلیه';
+        break;
+      default:
+        statusText = 'در انتظار تایید';
+    }
+
+    card.append(`<div><strong>وضعیت:</strong> ${statusText}</div>`);
+
+    // دکمه‌ها برای مدیر
+    if (currentRole === 'admin' && request.status === 'pending') {
+      card.append(`
+        <button onclick="approveRequest(${request.id}, '${request.type === 'ماموریت' ? 'mission' : 'leave'}')" class="btn btn-success action-btn">تایید</button>
+        <button onclick="rejectRequest(${request.id}, '${request.type === 'ماموریت' ? 'mission' : 'leave'}')" class="btn btn-danger action-btn">رد</button>
+      `);
+    }
+
+    // دکمه برای مسئول نقلیه فقط وقتی مأموریت توسط مدیر تایید شده
+    if (currentRole === 'transport' && request.type === 'ماموریت' && request.status === 'approved') {
+      card.append(`
+        <button onclick="transportApproveRequest(${request.id})" class="btn btn-primary action-btn">تایید نهایی</button>
+      `);
+    }
+
+    listContainer.append(card);
+  });
+}
     
     // نمایش درخواست‌های کارمند
     function loadEmployeeRequests() {
@@ -1646,137 +1617,97 @@
     
     // ثبت درخواست مأموریت
     function submitMissionRequest() {
-      if (!currentUser) return;
-      
-      const type = $('input[name="missionType"]:checked').val();
-      const carType = type === 'driver' ? $('#carType').val() : null;
-      const location = $('#missionLocation').val().trim();
-      const date = $('#missionDate').val().split(' - ')[0];
-      const departureHour = $('#departureHour').val();
-      const departureMinute = $('#departureMinute').val();
-      const returnHour = $('#returnHour').val();
-      const returnMinute = $('#returnMinute').val();
-      
-      if (!location || !date || !departureHour || !departureMinute || !returnHour || !returnMinute) {
-        Swal.fire({
-          title: 'خطا',
-          text: 'لطفاً تمام فیلدهای ضروری را پر کنید',
-          icon: 'error',
-          background: '#1e1e1e',
-          color: '#ffffff',
-          confirmButtonText: 'متوجه شدم'
-        });
-        return;
-      }
-      
-      if (type === 'driver' && !carType) {
-        Swal.fire({
-          title: 'خطا',
-          text: 'لطفاً نوع خودرو را انتخاب کنید',
-          icon: 'error',
-          background: '#1e1e1e',
-          color: '#ffffff',
-          confirmButtonText: 'متوجه شدم'
-        });
-        return;
-      }
-      
-      const newRequest = {
-        id: Date.now(),
-        employeeName: currentUser.name,
-        type,
-        carType,
-        location,
-        date,
-        departureTime: `${departureHour}:${departureMinute}`,
-        returnTime: `${returnHour}:${returnMinute}`,
-        status: 'pending',
-        timestamp: new Date().toISOString()
-      };
-      
-      missionRequests.push(newRequest);
-      localStorage.setItem('missionRequests', JSON.stringify(missionRequests));
-      
-      Swal.fire({
-        title: 'موفق',
-        text: 'درخواست مأموریت با موفقیت ثبت شد',
-        icon: 'success',
-        background: '#1e1e1e',
-        color: '#ffffff',
-        confirmButtonText: 'متوجه شدم'
-      });
-      playSound('M2');
-      
-      // ریست فرم
-      $('#missionLocation').val('');
-      $('#missionDate').val('');
-      $('#departureHour, #departureMinute, #returnHour, #returnMinute').val('');
-      if (type === 'driver') {
-        $('#carType').val('');
-      }
-      
-      // بارگذاری مجدد لیست درخواست‌ها
-      loadEmployeeRequests();
-      
-      // بازگشت به منوی اصلی
-      backToEmployeeMenu();
-    }
+  const missionDate = $('#missionDate').val().trim();
+  const missionDestination = $('#missionDestination').val().trim();
+
+  if (!missionDate || !missionDestination) {
+    Swal.fire({
+      title: 'خطا',
+      text: 'لطفاً تاریخ و مقصد مأموریت را وارد کنید',
+      icon: 'error',
+      background: '#1e1e1e',
+      color: '#ffffff',
+      confirmButtonText: 'متوجه شدم'
+    });
+    return;
+  }
+
+  const newRequest = {
+    id: Date.now(),
+    type: 'ماموریت',
+    date: missionDate,
+    destination: missionDestination,
+    lastName: currentUser.lastName,
+    status: 'در انتظار تایید',
+    transportApproved: false,
+    finalApproved: false
+  };
+
+  missionRequests.push(newRequest);
+
+  // ذخیره در JSONBin
+  saveAllToJSONBin();
+
+  Swal.fire({
+    title: 'درخواست ثبت شد',
+    text: 'درخواست مأموریت با موفقیت ارسال شد',
+    icon: 'success',
+    background: '#1e1e1e',
+    color: '#ffffff',
+    confirmButtonText: 'باشه'
+  });
+  playSound('M3');
+
+  $('#missionDate').val('');
+  $('#missionDestination').val('');
+  backToEmployeeMenu();
+}
     
     // ثبت درخواست مرخصی
     function submitLeaveRequest() {
-      if (!currentUser) return;
-      
-      const date = $('#leaveDate').val().split(' - ')[0];
-      const startHour = $('#leaveStartHour').val();
-      const startMinute = $('#leaveStartMinute').val();
-      const endHour = $('#leaveEndHour').val();
-      const endMinute = $('#leaveEndMinute').val();
-      
-      if (!date || !startHour || !startMinute || !endHour || !endMinute) {
-        Swal.fire({
-          title: 'خطا',
-          text: 'لطفاً تمام فیلدهای ضروری را پر کنید',
-          icon: 'error',
-          background: '#1e1e1e',
-          color: '#ffffff',
-          confirmButtonText: 'متوجه شدم'
-        });
-        return;
-      }
-      
-      const newRequest = {
-        id: Date.now(),
-        employeeName: currentUser.name,
-        date,
-        startTime: `${startHour}:${startMinute}`,
-        endTime: `${endHour}:${endMinute}`,
-        status: 'pending',
-        timestamp: new Date().toISOString()
-      };
-      
-      leaveRequests.push(newRequest);
-      localStorage.setItem('leaveRequests', JSON.stringify(leaveRequests));
-      
-      Swal.fire({
-        title: 'موفق',
-        text: 'درخواست مرخصی با موفقیت ثبت شد',
-        icon: 'success',
-        background: '#1e1e1e',
-        color: '#ffffff',
-        confirmButtonText: 'متوجه شدم'
-      });
-      playSound('M2');
-      
-      // ریست فرم
-      $('#leaveDate').val('');
-      $('#leaveStartHour, #leaveStartMinute, #leaveEndHour, #leaveEndMinute').val('');
-      
-      // بارگذاری مجدد لیست درخواست‌ها
-      loadEmployeeRequests();
-      
-      // بازگشت به منوی اصلی
-      backToEmployeeMenu();
-    }
+  const leaveDate = $('#leaveDate').val().trim();
+  const leaveReason = $('#leaveReason').val().trim();
+
+  if (!leaveDate || !leaveReason) {
+    Swal.fire({
+      title: 'خطا',
+      text: 'لطفاً تاریخ و علت مرخصی را وارد کنید',
+      icon: 'error',
+      background: '#1e1e1e',
+      color: '#ffffff',
+      confirmButtonText: 'متوجه شدم'
+    });
+    return;
+  }
+
+  const newLeave = {
+    id: Date.now(),
+    type: 'مرخصی',
+    date: leaveDate,
+    reason: leaveReason,
+    lastName: currentUser.lastName,
+    status: 'در انتظار تایید'
+  };
+
+  leaveRequests.push(newLeave);
+
+  // ذخیره در JSONBin
+  saveAllToJSONBin();
+
+  Swal.fire({
+    title: 'درخواست ثبت شد',
+    text: 'درخواست مرخصی با موفقیت ارسال شد',
+    icon: 'success',
+    background: '#1e1e1e',
+    color: '#ffffff',
+    confirmButtonText: 'باشه'
+  });
+  playSound('M3');
+
+  $('#leaveDate').val('');
+  $('#leaveReason').val('');
+  backToEmployeeMenu();
+}
     
     // نمایش/پنهان کردن فیلد خودرو
     function toggleCarField() {
@@ -1790,100 +1721,107 @@
     
     // تایید درخواست توسط مدیر
     function approveRequest(requestId, requestType) {
-      if (requestType === 'mission') {
-        const request = missionRequests.find(req => req.id === requestId);
-        if (request) {
-          request.status = 'approved';
-          localStorage.setItem('missionRequests', JSON.stringify(missionRequests));
-          loadAdminRequests();
-          playSound('M3');
-          Swal.fire({
-            title: 'موفق',
-            text: request.type === 'driver' ? 
-              'درخواست تایید شد و در انتظار تایید نهایی مسئول نقلیه است' : 
-              'درخواست تایید شد',
-            icon: 'success',
-            background: '#1e1e1e',
-            color: '#ffffff',
-            confirmButtonText: 'متوجه شدم'
-          });
-        }
-      } else if (requestType === 'leave') {
-        const request = leaveRequests.find(req => req.id === requestId);
-        if (request) {
-          request.status = 'approved';
-          localStorage.setItem('leaveRequests', JSON.stringify(leaveRequests));
-          loadAdminRequests();
-          playSound('M3');
-          Swal.fire({
-            title: 'موفق',
-            text: 'درخواست مرخصی تایید شد',
-            icon: 'success',
-            background: '#1e1e1e',
-            color: '#ffffff',
-            confirmButtonText: 'متوجه شدم'
-          });
-        }
-      }
+  if (requestType === 'mission') {
+    const request = missionRequests.find(req => req.id === requestId);
+    if (request) {
+      request.status = 'approved';
+      saveAllToJSONBin();
+      loadAdminRequests();
+      playSound('M3');
+      Swal.fire({
+        title: 'موفق',
+        text: request.type === 'driver' ? 
+          'درخواست تایید شد و در انتظار تایید نهایی مسئول نقلیه است' : 
+          'درخواست تایید شد',
+        icon: 'success',
+        background: '#1e1e1e',
+        color: '#ffffff',
+        confirmButtonText: 'متوجه شدم'
+      });
     }
-    
-    // رد درخواست توسط مدیر
-    function rejectRequest(requestId, requestType) {
-      if (requestType === 'mission') {
-        const request = missionRequests.find(req => req.id === requestId);
-        if (request) {
-          request.status = 'rejected';
-          localStorage.setItem('missionRequests', JSON.stringify(missionRequests));
-          loadAdminRequests();
-          playSound('M5');
-          Swal.fire({
-            title: 'موفق',
-            text: 'درخواست رد شد',
-            icon: 'success',
-            background: '#1e1e1e',
-            color: '#ffffff',
-            confirmButtonText: 'متوجه شدم'
-          });
-        }
-      } else if (requestType === 'leave') {
-        const request = leaveRequests.find(req => req.id === requestId);
-        if (request) {
-          request.status = 'rejected';
-          localStorage.setItem('leaveRequests', JSON.stringify(leaveRequests));
-          loadAdminRequests();
-          playSound('M5');
-          Swal.fire({
-            title: 'موفق',
-            text: 'درخواست مرخصی رد شد',
-            icon: 'success',
-            background: '#1e1e1e',
-            color: '#ffffff',
-            confirmButtonText: 'متوجه شدم'
-          });
-        }
-      }
+  } else if (requestType === 'leave') {
+    const request = leaveRequests.find(req => req.id === requestId);
+    if (request) {
+      request.status = 'approved';
+      saveAllToJSONBin();
+      loadAdminRequests();
+      playSound('M3');
+      Swal.fire({
+        title: 'موفق',
+        text: 'درخواست مرخصی تایید شد',
+        icon: 'success',
+        background: '#1e1e1e',
+        color: '#ffffff',
+        confirmButtonText: 'متوجه شدم'
+      });
     }
-    
+  }
+}
+
+function rejectRequest(requestId, requestType) {
+  if (requestType === 'mission') {
+    const request = missionRequests.find(req => req.id === requestId);
+    if (request) {
+      request.status = 'rejected';
+      saveAllToJSONBin();
+      loadAdminRequests();
+      playSound('M5');
+      Swal.fire({
+        title: 'موفق',
+        text: 'درخواست رد شد',
+        icon: 'success',
+        background: '#1e1e1e',
+        color: '#ffffff',
+        confirmButtonText: 'متوجه شدم'
+      });
+    }
+  } else if (requestType === 'leave') {
+    const request = leaveRequests.find(req => req.id === requestId);
+    if (request) {
+      request.status = 'rejected';
+      saveAllToJSONBin();
+      loadAdminRequests();
+      playSound('M5');
+      Swal.fire({
+        title: 'موفق',
+        text: 'درخواست مرخصی رد شد',
+        icon: 'success',
+        background: '#1e1e1e',
+        color: '#ffffff',
+        confirmButtonText: 'متوجه شدم'
+      });
+    }
+  }
+}
+  
     // تایید درخواست توسط مسئول نقلیه
     function transportApproveRequest(requestId) {
-      const request = missionRequests.find(req => req.id === requestId);
-      if (request) {
-        request.status = 'transport-approved';
-        localStorage.setItem('missionRequests', JSON.stringify(missionRequests));
-        loadTransportPendingRequests();
-        loadTransportRequests();
-        playSound('M4');
-        Swal.fire({
-          title: 'موفق',
-          text: 'درخواست با موفقیت تایید نهایی شد',
-          icon: 'success',
-          background: '#1e1e1e',
-          color: '#ffffff',
-          confirmButtonText: 'متوجه شدم'
-        });
-      }
-    }
-    
+  const request = missionRequests.find(req => req.id === requestId);
+  if (request && request.status === 'approved') {
+    request.transportApproved = true;
+    request.status = 'final-approved';
+    saveAllToJSONBin();
+    loadAdminRequests();
+    playSound('M3');
+    Swal.fire({
+      title: 'تایید شد',
+      text: 'درخواست مأموریت توسط مسئول نقلیه تایید نهایی شد',
+      icon: 'success',
+      background: '#1e1e1e',
+      color: '#ffffff',
+      confirmButtonText: 'باشه'
+    });
+  } else {
+    Swal.fire({
+      title: 'خطا',
+      text: 'فقط درخواست‌هایی که توسط مدیر تایید شده‌اند، قابل تایید توسط مسئول نقلیه هستند',
+      icon: 'error',
+      background: '#1e1e1e',
+      color: '#ffffff',
+      confirmButtonText: 'متوجه شدم'
+    });
+  }
+}
     // رد درخواست توسط مسئول نقلیه
     function transportRejectRequest(requestId) {
       const request = missionRequests.find(req => req.id === requestId);
@@ -2296,43 +2234,84 @@
     }
     
     // مقداردهی اولیه
-    $(document).ready(function() {
-      // تنظیم تقویم فارسی
-      $('#missionDate, #leaveDate, #exportStartDate, #exportEndDate, #searchStartDate, #searchEndDate').pDatepicker({
-        format: 'YYYY/MM/DD',
-        autoClose: true,
-        calendarType: 'persian',
-        initialValue: false,
-        toolbox: {
-          calendarSwitch: {
-            enabled: false
-          },
-          todayButton: {
-            enabled: true,
-            text: {
-              fa: "📌 امروز"
-            }
-          },
-          submitButton: {
-            enabled: false
+// ✅ تنظیمات JSONBin.io
+  const JSONBIN_API_KEY  = '$2a$10$Q1wyKwgf3PhXqLGb7zOeUuht6K6r8ACqD6a9xHy2pqtfN5Nm76.Z.';
+  const JSONBIN_BIN_ID   = '686a64cf8a456b7966bc4202';
+  const JSONBIN_BASE_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
+
+  async function loadDataFromJSONBin() {
+    const response = await fetch(`${JSONBIN_BASE_URL}/latest`, {
+      headers: {
+        'X-Master-Key': JSONBIN_API_KEY
+      }
+    });
+    const json = await response.json();
+    return json.record;
+  }
+
+  async function saveDataToJSONBin(data) {
+    const response = await fetch(JSONBIN_BASE_URL, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Master-Key': JSONBIN_API_KEY,
+        'X-Bin-Versioning': false
+      },
+      body: JSON.stringify(data)
+    });
+    return await response.json();
+  }
+  async function saveAllToJSONBin() {
+  const data = {
+    employees,
+    transportManager,
+    missionRequests,
+    leaveRequests,
+    adminPassword,
+    adminProfile
+  };
+  await saveDataToJSONBin(data);
+}
+
+
+  // ⬇️ این کد از قبل وجود داشت
+  $(document).ready(function() {
+    // تنظیم تقویم فارسی
+    $('#missionDate, #leaveDate, #exportStartDate, #exportEndDate, #searchStartDate, #searchEndDate').pDatepicker({
+      format: 'YYYY/MM/DD',
+      autoClose: true,
+      calendarType: 'persian',
+      initialValue: false,
+      toolbox: {
+        calendarSwitch: {
+          enabled: false
+        },
+        todayButton: {
+          enabled: true,
+          text: {
+            fa: "📌 امروز"
           }
         },
-        onShow: function() {
-          $('.datepicker-plot-area').css({
-            'background-color': '#1e1e1e',
-            'color': '#ffffff'
-          });
+        submitButton: {
+          enabled: false
         }
-      });
-      
-      // بارگذاری پروفایل مدیر
-      if (adminProfile) {
-        $('#adminFullName').val(adminProfile.name);
+      },
+      onShow: function() {
+        $('.datepicker-plot-area').css({
+          'background-color': '#1e1e1e',
+          'color': '#ffffff'
+        });
       }
-      
-      // پخش صوت راهنمای ورود
-      playSound('M1');
     });
-  </script>
+
+    // بارگذاری پروفایل مدیر
+    if (adminProfile) {
+      $('#adminFullName').val(adminProfile.name);
+    }
+
+    // پخش صوت راهنمای ورود
+    playSound('M1');
+  });
+</script>
 </body>
 </html>
